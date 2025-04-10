@@ -4,6 +4,8 @@ const {
   verifyToken,
 } = require("../../Controller/Authentication/AuthenticationControllers");
 
+import upload from "../../Helper/MulterConfig";
+
 const {
   uploadMedicalRecords,
   uploadMedPdfDocs,
@@ -12,7 +14,12 @@ const {
 const DocumentRoutes = express.Router();
 
 // Medical Records Upload - PDF file also included (Multiple PDF Files in array format)
-DocumentRoutes.post("/uploadPdf", verifyToken, uploadMedPdfDocs);
+DocumentRoutes.post(
+  "/pdfMedicalRecords/uploadPdf",
+  upload.array("files", 10),
+  uploadMedPdfDocs
+);
+
 DocumentRoutes.post("/uploadMedicalRecords", verifyToken, uploadMedicalRecords);
 
 export default DocumentRoutes;

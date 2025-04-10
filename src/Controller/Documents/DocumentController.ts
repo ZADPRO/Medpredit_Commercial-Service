@@ -48,9 +48,32 @@ const uploadMedicalRecords = async (req, res) => {
   }
 };
 
-const uploadMedPdfDocs = async (req, res) => {
-  console.log("res", res);
+const uploadMedPdfDocs = async (req, res): Promise<void> => {
   console.log("req", req);
+  try {
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      res.status(400).json({ message: "No PDF files uploaded." });
+      return;
+    }
+
+    const uploadedPaths: string[] = [];
+
+    req.files.forEach((file, index) => {
+      console.log(`File ${index + 1}:`, file.originalname);
+
+      const filePath = `/assets/MedicalReportPDF/${file.filename}`;
+      uploadedPaths.push(filePath);
+    });
+    console.log("uploadedPaths", uploadedPaths);
+
+    res.status(200).json({
+      message: "PDF files uploaded successfully.",
+      filePaths: uploadedPaths,
+    });
+  } catch (error: any) {
+    console.error("Upload error:", error.message);
+    res.status(500).json({ message: "Server error during upload." });
+  }
 };
 
 module.exports = {
