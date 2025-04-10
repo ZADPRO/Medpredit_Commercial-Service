@@ -1,0 +1,20 @@
+# Ignore node modules
+node_modules/
+
+# Ignore build files
+build/
+
+# Ignore npm debug log
+npm-debug.log
+
+# Ignore Logs folder (in any directory)
+Logs/
+
+# Ignore NYC coverage output
+.nyc/
+
+# Ignore environment files
+.env
+
+# Ignore macOS system files
+.DS_Store
