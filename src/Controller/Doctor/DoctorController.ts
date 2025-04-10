@@ -149,7 +149,7 @@ const getReportPDFController = async (req, res) => {
 
     const result = await getCurrentReportPDFModel(
       patientId,
-      reportDate, 
+      reportDate,
       doctorId
     );
 
