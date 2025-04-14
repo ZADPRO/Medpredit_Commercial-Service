@@ -7,6 +7,7 @@ import {
 } from "../../Helper/CurrentTime";
 import {
   checkMobileNumberQuery,
+  getAssessmentNoQuery,
   getPasswordQuery,
   getUserId,
   nextUserId,
@@ -418,6 +419,7 @@ export const getOneValidPackageModel = async (
   currentDate: any,
   refUserId: any
 ) => {
+
   const connection = await DB();
 
   try {
@@ -427,12 +429,14 @@ export const getOneValidPackageModel = async (
     ]);
 
     if (checkSubscriptions.rows.length > 0) {
+      const getGST = await connection.query(getGSTQuery);
 
       const oldPackage = checkSubscriptions.rows[0];
 
-      const oldPackage_amount = parseFloat(oldPackage.refTransactionAmount);
-      const oldPackage_sgst = parseFloat(oldPackage.refTransactionSGST);
-      const oldPackage_cgst = parseFloat(oldPackage.refTransactionCGST);
+      const oldPackage_amount = parseFloat(oldPackage.refPkgAmount);
+
+      const oldPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
+      const oldPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
 
       const oneday_amount = oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
       const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
@@ -459,7 +463,6 @@ export const getOneValidPackageModel = async (
 
       const totalminus = minus_amount + minus_cgst + minus_sgst;
 
-      const getGST = await connection.query(getGSTQuery);
 
       const result = await connection.query(SelectPackageQuery, [
         packageId,
@@ -554,12 +557,14 @@ export const purchasePackageModel = async (
     if (getPackageQuery.rows.length === 1) {
       if (checkSubscriptions.rows.length > 0) {
 
+        const getGST = await connection.query(getGSTQuery);
 
         const oldPackage = checkSubscriptions.rows[0];
 
-        const oldPackage_amount = parseFloat(oldPackage.refTransactionAmount);
-        const oldPackage_sgst = parseFloat(oldPackage.refTransactionSGST);
-        const oldPackage_cgst = parseFloat(oldPackage.refTransactionCGST);
+        const oldPackage_amount = parseFloat(oldPackage.refPkgAmount);
+
+        const oldPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
+        const oldPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
 
         const oneday_amount = oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
         const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
@@ -582,8 +587,6 @@ export const purchasePackageModel = async (
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_cgst;
-
-        const getGST = await connection.query(getGSTQuery);
 
         const result = await connection.query(SelectPackageQuery, [
           packageId,
@@ -1036,9 +1039,20 @@ export const getDashbardModel = async (refUserId: any, createdAt: any) => {
       refUserId
     ]);
 
+    const isHigherQuestion = await connection.query(getAssessmentNoQuery, [
+      refUserId, ['9', '10', '11', '43']
+    ]);
+
+    const isLowerQuestion = await connection.query(getAssessmentNoQuery, [
+      refUserId, ['8', '12', '13', '51']
+    ]);
+
+
     return {
       status: true,
-      checkSubscriptions: checkSubscriptions.rows
+      checkSubscriptions: checkSubscriptions.rows,
+      isHigherQuestion: isHigherQuestion.rows,
+      isLowerQuestion: isLowerQuestion.rows
     }
 
   } catch (error) {
