@@ -204,6 +204,7 @@ SELECT
 FROM
   public."refRelation" rr
   JOIN public."Users" u ON u."refUserId" = rr."refUserId"
+  JOIN public."refCommunication" rc ON rc."refUserId" = rr."refUserId"
 WHERE
   rr."refRHeadMobileNo" = $1
   AND rr."refRStatus" = true
@@ -265,6 +266,6 @@ WHERE
   AND rr."refRHeadMobileNo" = $2
   `;
 
-  export const getLanguageQuery = `
+export const getLanguageQuery = `
   SELECT * FROM public."refLanguage"
   `;
