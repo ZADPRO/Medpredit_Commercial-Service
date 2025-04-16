@@ -236,6 +236,8 @@ WHERE
   rc."refUserMobileno" = $1
   AND u."refUserId" != $2
   AND u."activeStatus" = 'active'
+  AND u."headStatus" = 'false'
+  AND u."refRoleId" = '3'
 ORDER BY
   u."refUserId" ASC
   `;
@@ -261,4 +263,8 @@ FROM
 WHERE
   rr."refUserId" = $1
   AND rr."refRHeadMobileNo" = $2
+  `;
+
+  export const getLanguageQuery = `
+  SELECT * FROM public."refLanguage"
   `;
