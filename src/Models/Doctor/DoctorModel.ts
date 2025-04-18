@@ -390,10 +390,10 @@ export const createReportModel = async (
         if (
           foundItem &&
           getValidateDuration(element) >
-            -calculateDaysDifference(
-              foundItem.refPTcreatedDate,
-              refPTcreatedDate
-            )
+          -calculateDaysDifference(
+            foundItem.refPTcreatedDate,
+            refPTcreatedDate
+          )
         ) {
           if (element === "103") {
             Status103 = true;
@@ -566,7 +566,8 @@ export const createReportModel = async (
 export const getPastReportDataModel = async (
   patientId: any,
   doctorId: any,
-  reportDate: any
+  reportDate: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
   try {
@@ -576,7 +577,7 @@ export const getPastReportDataModel = async (
 
     const patient = patientIdResult.rows[0];
 
-    const getAllCategoryResult = await connection.query(getAllCategoryQuery);
+    const getAllCategoryResult = await connection.query(getAllCategoryQuery, [refLanCode]);
 
     const getAllScoreResult = await connection.query(getParticualarScoreQuery, [
       patientId,
@@ -587,9 +588,9 @@ export const getPastReportDataModel = async (
 
     const doctor = doctorIdResult.rows[0];
 
-    const getAllScoreVerify = await connection.query(getAllScoreVerifyQuery);
+    const getAllScoreVerify = await connection.query(getAllScoreVerifyQuery, [refLanCode]);
 
-    const getStressAnswer = await connection.query(getStressAnswerQuery);
+    const getStressAnswer = await connection.query(getStressAnswerQuery, [refLanCode]);
 
     const TreatmentDetails = await connection.query(getReportTreatmentDetails, [
       patientId,
@@ -900,9 +901,9 @@ export const getCurrentReportPDFModel = async (
       doctorId,
     ]);
 
-    const scoreVerifyResult = await connection.query(getScoreVerifyReport);
+    const scoreVerifyResult = await connection.query(getScoreVerifyReport, ['1']);
 
-    const categoryResult = await connection.query(getAllCategoryFamilyHistory);
+    const categoryResult = await connection.query(getAllCategoryFamilyHistory,['1']);
 
     const treatementDetails = await connection.query(getTreatementDetails, [
       patientId,
@@ -937,15 +938,14 @@ export const getCurrentReportPDFModel = async (
         const doctorid =
           categories.length > 0 ? categories[0].doctorid : "Unknown"; // Get doctorid from first entry
         const categoryList = categories.map((c) => c.category).join(", ");
-        return `[ ${categoryList} - ${doctorname} (${
-          doctorid === 1 || doctorid === 4
+        return `[ ${categoryList} - ${doctorname} (${doctorid === 1 || doctorid === 4
             ? "Doctor"
             : doctorid === 2
-            ? "Assistant"
-            : doctorid === 3
-            ? "Self"
-            : null
-        }) ]`;
+              ? "Assistant"
+              : doctorid === 3
+                ? "Self"
+                : null
+          }) ]`;
       })
       .join(", ");
 
@@ -1121,7 +1121,8 @@ export const getPastReportPDFModel = async (
   patientId: any,
   refPMId: any,
   fromDate: any,
-  toDate: any
+  toDate: any,
+  refLancode: any
 ) => {
   const connection = await DB();
 
@@ -1138,9 +1139,9 @@ export const getPastReportPDFModel = async (
       refPMId,
     ]);
 
-    const scoreVerifyResult = await connection.query(getScoreVerifyReport);
+    const scoreVerifyResult = await connection.query(getScoreVerifyReport, [refLancode]);
 
-    const categoryResult = await connection.query(getAllCategoryFamilyHistory);
+    const categoryResult = await connection.query(getAllCategoryFamilyHistory, [refLancode]);
 
     const treatementDetails = await connection.query(
       getReportTreatmentDetails,

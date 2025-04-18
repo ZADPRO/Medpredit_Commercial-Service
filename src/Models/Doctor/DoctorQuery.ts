@@ -74,6 +74,7 @@ SELECT
   *
 FROM
   public."refCategory" rc
+WHERE rc."refLanCode" = $1
   `;
 
 export const getAllScoreQuery = `
@@ -126,14 +127,16 @@ ORDER BY
   `;
 
 export const getAllScoreVerifyQuery = `
-  SELECT
+SELECT
   *
 FROM
-  public."refUserScoreVerify";
+  public."refUserScoreVerify"
+WHERE
+  "refLanCode" = $1
   `;
 
 export const getStressAnswerQuery = `
-  SELECT
+SELECT
   *
 FROM
   public."refOptions" ro
@@ -145,6 +148,7 @@ WHERE
     OR ro."forwardQId" = '29'
     OR ro."forwardQId" = '30'
   )
+  AND ro."refLanCode" = $1
   `;
 
 export const getDoctorPatientMapQuery = `
@@ -205,10 +209,18 @@ export const getScoreVerifyReport = `
   *
 FROM
   public."refUserScoreVerify"
+WHERE
+  "refLanCode" = $1
   `;
 
 export const getAllCategoryFamilyHistory = `
-  SELECT * FROM public."refCategory" rc WHERE rc."refQSubCategory" = '51'
+SELECT
+  *
+FROM
+  public."refCategory" rc
+WHERE
+  rc."refQSubCategory" = '51'
+  AND rc."refLanCode" = $1
   `;
 
 export const getDiagnosisQuery = `

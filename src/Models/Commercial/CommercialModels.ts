@@ -34,6 +34,7 @@ import {
   getAllValidPackageQuery,
   getFamilyMembersQuery,
   getGSTQuery,
+  getLanguageQuery,
   getPaymentTransactionHistoryQuery,
   getUserQuery,
   InsertSubscriptionQuery,
@@ -1053,6 +1054,28 @@ export const getDashbardModel = async (refUserId: any, createdAt: any) => {
       checkSubscriptions: checkSubscriptions.rows,
       isHigherQuestion: isHigherQuestion.rows,
       isLowerQuestion: isLowerQuestion.rows
+    }
+
+  } catch (error) {
+    await connection.query("ROLLBACK;");
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.query("COMMIT;");
+    await connection.end();
+  }
+
+}
+
+export const getLanguageModel = async () => {
+  const connection = await DB();
+  try {
+
+    const getLanguage = await connection.query(getLanguageQuery);
+
+    return {
+      status: true,
+      getLanguage: getLanguage.rows
     }
 
   } catch (error) {

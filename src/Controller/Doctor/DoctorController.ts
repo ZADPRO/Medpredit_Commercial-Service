@@ -111,7 +111,7 @@ const createReportController = async (req, res) => {
 
 const getPastReportDataController = async (req, res) => {
   try {
-    const { patientId, employeeId, reportDate } = req.body;
+    const { patientId, employeeId, reportDate, refLanCode } = req.body;
 
     let doctorId = employeeId;
 
@@ -124,7 +124,8 @@ const getPastReportDataController = async (req, res) => {
     const result = await getPastReportDataModel(
       patientId,
       doctorId,
-      reportDate
+      reportDate,
+      refLanCode
     );
 
     return res.status(200).json(encrypt(result, true));
@@ -149,7 +150,7 @@ const getReportPDFController = async (req, res) => {
 
     const result = await getCurrentReportPDFModel(
       patientId,
-      reportDate, 
+      reportDate,
       doctorId
     );
 

@@ -21,7 +21,8 @@ const {
   getParticularUserMobileNumberController,
   linkFamilyMemberController,
   unlinkFamilyMemberController,
-  getDashbardController
+  getDashbardController,
+  getLanguageController
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -107,5 +108,10 @@ CommercialRoutes.get(
   verifyToken,
   getDashbardController
 );
+
+CommercialRoutes.get(
+  "/getLanguage",
+  getLanguageController
+)
 
 export default CommercialRoutes;

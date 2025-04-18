@@ -170,13 +170,13 @@ const getMainCategoryController = async (req, res) => {
   try {
     let doctorId = req.userData.userid;
 
-    const { employeeId, patientId, hospitalId } = req.body;
+    const { employeeId, patientId, hospitalId, refLanCode } = req.body;
 
     if (employeeId) {
       doctorId = employeeId;
     }
 
-    const result = await getMainCategoryModels(doctorId, patientId, hospitalId);
+    const result = await getMainCategoryModels(doctorId, patientId, hospitalId, refLanCode);
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -210,7 +210,7 @@ const getSubMainCategoryController = async (req, res) => {
 
 const getCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId, patientId, employeeId, hospitalId } = req.body;
+    const { SubCategoryId, patientId, employeeId, hospitalId, refLanCode } = req.body;
     let doctorId = req.userData.userid;
 
     if (employeeId) {
@@ -221,7 +221,8 @@ const getCategoryController = async (req, res) => {
       SubCategoryId,
       patientId,
       doctorId,
-      hospitalId
+      hospitalId,
+      refLanCode
     );
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -233,12 +234,13 @@ const getCategoryController = async (req, res) => {
 
 const getQuestionsController = async (req, res) => {
   try {
-    const { patientId, questionId } = req.body;
+    const { patientId, questionId, refLanCode } = req.body;
 
     const result = await getQuestionsModels(
       patientId,
       questionId,
-      req.userData.userid
+      req.userData.userid,
+      refLanCode
     );
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -250,7 +252,7 @@ const getQuestionsController = async (req, res) => {
 
 const postAnswersController = async (req, res) => {
   try {
-    const { patientId, categoryId, answers, employeeId, hospitalId } = req.body;
+    const { patientId, categoryId, answers, employeeId, hospitalId, refLanCode } = req.body;
 
     let doctorId = req.userData.userid;
 
@@ -266,7 +268,8 @@ const postAnswersController = async (req, res) => {
       answers,
       doctorId,
       createdBy,
-      hospitalId
+      hospitalId,
+      refLanCode
     );
 
     console.log("hello");

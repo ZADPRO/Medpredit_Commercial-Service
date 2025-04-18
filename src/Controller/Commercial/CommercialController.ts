@@ -6,6 +6,7 @@ import {
   getAllValidPackageModel,
   getDashbardModel,
   getFamilyMembersModel,
+  getLanguageModel,
   getOneValidPackageModel,
   getParticularUserMobileNumberModel,
   getPaymentTransactionHistoryModel,
@@ -476,6 +477,17 @@ const getDashbardController = async (req, res) => {
   }
 }
 
+const getLanguageController = async (req, res) => {
+  try {
+    const result = await getLanguageModel();
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    logger.error(`Get the Dashboard (getDashbardController): (${error})`);
+    console.error("Something went Wrong", error);
+    return res.status(500).json({ error: "Something went wrong" + error });
+  }
+}
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -493,5 +505,6 @@ module.exports = {
   getParticularUserMobileNumberController,
   linkFamilyMemberController,
   unlinkFamilyMemberController,
-  getDashbardController
+  getDashbardController,
+  getLanguageController
 };

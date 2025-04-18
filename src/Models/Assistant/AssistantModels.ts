@@ -209,7 +209,8 @@ export const postNewPatientModels = async (values: any) => {
 export const getMainCategoryModels = async (
   doctorId: any,
   patientId: any,
-  hospitalId: any
+  hospitalId: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
 
@@ -223,7 +224,7 @@ export const getMainCategoryModels = async (
     ]);
 
     if (checkPatient.rows.length > 0) {
-      const result = await connection.query(getMainCategoryQuery);
+      const result = await connection.query(getMainCategoryQuery,[refLanCode]);
 
       return {
         status: true,
@@ -326,7 +327,8 @@ export const getCategoryModels = async (
   categoryId: any,
   patientId: any,
   doctorId: any,
-  hospitalId: any
+  hospitalId: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
   const createdAt = CurrentTime();
@@ -334,7 +336,7 @@ export const getCategoryModels = async (
   // const PTcreatedDate = getDateOnly();
 
   try {
-    const values = [categoryId];
+    const values = [categoryId, refLanCode];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
 
@@ -350,7 +352,7 @@ export const getCategoryModels = async (
       // PTcreatedDate,
 
       const UserScoreVerify = await connection.query(getUserScoreVerifyQuery, [
-        element.refQCategoryId,
+        element.refQCategoryId, refLanCode
       ]);
 
       resultArray.push({
@@ -395,13 +397,17 @@ export const getCategoryModels = async (
 export const getQuestionsModels = async (
   patientId: any,
   questionId: any,
-  userid: any
+  userid: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
 
+
+  console.log(refLanCode);
+
   try {
     const getQuestion = await connection.query(getFirstQuestionQuery, [
-      questionId,
+      questionId, refLanCode
     ]);
 
     const mappedResult = await Promise.all(
@@ -410,7 +416,7 @@ export const getQuestionsModels = async (
         const optionsValue = question.refOptions.split(",").map(Number);
 
         // Fetch options for the current question
-        const optionResult = await connection.query(getOptions, [optionsValue]);
+        const optionResult = await connection.query(getOptions, [optionsValue, refLanCode]);
 
         return {
           questionId: question.refQId,
@@ -468,7 +474,8 @@ export const postAnswersModels = async (
   answers: any,
   doctorId: any,
   createdBy: any,
-  hospitalId: any
+  hospitalId: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
   const createdAt = CurrentTime();
@@ -480,13 +487,14 @@ export const postAnswersModels = async (
 
     const getQuestion = await connection.query(getFirstQuestionQuery, [
       categoryId,
+      refLanCode
     ]);
 
     const mappedResult: any = await Promise.all(
       getQuestion.rows.map(async (question) => {
         const optionsValue = question.refOptions.split(",").map(Number);
 
-        const optionResult = await connection.query(getOptions, [optionsValue]);
+        const optionResult = await connection.query(getOptions, [optionsValue, refLanCode]);
 
         return optionResult.rows;
       })
