@@ -37,6 +37,7 @@ import {
   getLanguageQuery,
   getPaymentTransactionHistoryQuery,
   getUserQuery,
+  getVersionQuery,
   InsertSubscriptionQuery,
   InsertTransactionHistoryQuery,
   isFirstcheckSubscriptionsQuery,
@@ -1048,12 +1049,14 @@ export const getDashbardModel = async (refUserId: any, createdAt: any) => {
       refUserId, ['8', '12', '13', '51']
     ]);
 
+    const version = await connection.query(getVersionQuery);
 
     return {
       status: true,
       checkSubscriptions: checkSubscriptions.rows,
       isHigherQuestion: isHigherQuestion.rows,
-      isLowerQuestion: isLowerQuestion.rows
+      isLowerQuestion: isLowerQuestion.rows,
+      version: version.rows
     }
 
   } catch (error) {

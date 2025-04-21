@@ -269,3 +269,14 @@ WHERE
 export const getLanguageQuery = `
   SELECT * FROM public."refLanguage"
   `;
+
+export const getVersionQuery = `
+  SELECT
+  *
+FROM
+  public."refVersion"
+ORDER BY
+  "refVersionId" DESC
+LIMIT
+  1
+  `;
