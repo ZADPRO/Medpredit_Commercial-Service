@@ -1091,3 +1091,21 @@ export const getLanguageModel = async () => {
   }
 
 }
+
+export const getVersionModel = async () => {
+  const connection = await DB();
+  try {
+
+    const version = await connection.query(getVersionQuery);
+
+    return {
+      status: true,
+      version: version.rows
+    }
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+}

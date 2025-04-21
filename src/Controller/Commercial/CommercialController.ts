@@ -11,6 +11,7 @@ import {
   getParticularUserMobileNumberModel,
   getPaymentTransactionHistoryModel,
   getUserModel,
+  getVersionModel,
   handleMultipleUserSigninModel,
   linkFamilyMemberModel,
   postFamilyUserModel,
@@ -488,6 +489,17 @@ const getLanguageController = async (req, res) => {
   }
 }
 
+const getVersionController = async (req, res) => {
+  try {
+    const result = await getVersionModel();
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    logger.error(`Get the Version (getVersionController): (${error})`);
+    console.error("Something went Wrong", error);
+    return res.status(500).json({ error: "Something went wrong" + error });
+  }
+}
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -506,5 +518,6 @@ module.exports = {
   linkFamilyMemberController,
   unlinkFamilyMemberController,
   getDashbardController,
-  getLanguageController
+  getLanguageController,
+  getVersionController
 };

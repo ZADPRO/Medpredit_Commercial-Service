@@ -22,7 +22,8 @@ const {
   linkFamilyMemberController,
   unlinkFamilyMemberController,
   getDashbardController,
-  getLanguageController
+  getLanguageController,
+  getVersionController
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -113,5 +114,11 @@ CommercialRoutes.get(
   "/getLanguage",
   getLanguageController
 )
+
+CommercialRoutes.get(
+  "/getVersion",
+  getVersionController
+)
+
 
 export default CommercialRoutes;
