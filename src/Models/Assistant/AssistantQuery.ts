@@ -121,7 +121,7 @@ WHERE
   ro."refQCategoryId" = $1
   AND ro."refLanCode" = $2
 ORDER BY
-  ro."refQId"
+  ro."refQId"::INTEGER ASC
 `;
 
 export const getOptions = `

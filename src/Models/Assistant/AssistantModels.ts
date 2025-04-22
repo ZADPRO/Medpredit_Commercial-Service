@@ -224,7 +224,7 @@ export const getMainCategoryModels = async (
     ]);
 
     if (checkPatient.rows.length > 0) {
-      const result = await connection.query(getMainCategoryQuery,[refLanCode]);
+      const result = await connection.query(getMainCategoryQuery, [refLanCode]);
 
       return {
         status: true,
@@ -402,8 +402,6 @@ export const getQuestionsModels = async (
 ) => {
   const connection = await DB();
 
-
-  console.log(refLanCode);
 
   try {
     const getQuestion = await connection.query(getFirstQuestionQuery, [
