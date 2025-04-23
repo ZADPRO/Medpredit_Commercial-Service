@@ -1,8 +1,8 @@
 export const Dietary = (answers: any, mappedResult: any) => {
   answers.sort((a, b) => a.questionId - b.questionId);
 
-  const q1 = answers.find((element) => element.questionId === "122")
-    ? answers.find((element) => element.questionId === "122")
+  const q1 = answers.find((element) => element.questionId === 122)
+    ? answers.find((element) => element.questionId === 122)
     : 0;
 
   let q1_ans = 0;
@@ -14,8 +14,8 @@ export const Dietary = (answers: any, mappedResult: any) => {
     );
   });
 
-  const q2 = answers.find((element) => element.questionId === "123")
-    ? answers.find((element) => element.questionId === "123")
+  const q2 = answers.find((element) => element.questionId === 123)
+    ? answers.find((element) => element.questionId === 123)
     : 0;
 
   let q2_ans = 0;
@@ -27,8 +27,8 @@ export const Dietary = (answers: any, mappedResult: any) => {
     );
   });
 
-  const q3 = answers.find((element) => element.questionId === "124")
-    ? answers.find((element) => element.questionId === "124")
+  const q3 = answers.find((element) => element.questionId === 124)
+    ? answers.find((element) => element.questionId === 124)
     : 0;
 
   let q3_ans = 0;
@@ -40,8 +40,8 @@ export const Dietary = (answers: any, mappedResult: any) => {
     );
   });
 
-  const q4 = answers.find((element) => element.questionId === "125")
-    ? answers.find((element) => element.questionId === "125")
+  const q4 = answers.find((element) => element.questionId === 125)
+    ? answers.find((element) => element.questionId === 125)
     : 0;
 
   let q4_ans = 0;
@@ -53,176 +53,176 @@ export const Dietary = (answers: any, mappedResult: any) => {
     );
   });
 
-  const q5 = answers.find((element) => element.questionId === "126")
-    ? answers.find((element) => element.questionId === "126")
+  const q5 = answers.find((element) => element.questionId === 126)
+    ? answers.find((element) => element.questionId === 126)
     : 0;
 
   const q5_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q5.answer);
 
-  const q6 = answers.find((element) => element.questionId === "127")
-    ? answers.find((element) => element.questionId === "127")
+  const q6 = answers.find((element) => element.questionId === 127)
+    ? answers.find((element) => element.questionId === 127)
     : 0;
 
   const q6_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q6.answer);
 
-  const q7 = answers.find((element) => element.questionId === "128")
-    ? answers.find((element) => element.questionId === "128")
+  const q7 = answers.find((element) => element.questionId === 128)
+    ? answers.find((element) => element.questionId === 128)
     : 0;
 
   const q7_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q7.answer);
 
-  const q8 = answers.find((element) => element.questionId === "129")
-    ? answers.find((element) => element.questionId === "129")
+  const q8 = answers.find((element) => element.questionId === 129)
+    ? answers.find((element) => element.questionId === 129)
     : 0;
 
   const q8_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q8.answer);
 
-  const q9 = answers.find((element) => element.questionId === "130")
-    ? answers.find((element) => element.questionId === "130")
+  const q9 = answers.find((element) => element.questionId === 130)
+    ? answers.find((element) => element.questionId === 130)
     : 0;
 
   const q9_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q9.answer);
 
-  const q10 = answers.find((element) => element.questionId === "132")
-    ? answers.find((element) => element.questionId === "132")
+  const q10 = answers.find((element) => element.questionId === 132)
+    ? answers.find((element) => element.questionId === 132)
     : 0;
 
   const q10_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q10.answer);
 
-  const q11 = answers.find((element) => element.questionId === "133")
-    ? answers.find((element) => element.questionId === "133")
+  const q11 = answers.find((element) => element.questionId === 133)
+    ? answers.find((element) => element.questionId === 133)
     : 0;
 
   const q11_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q11.answer);
 
-  const q12 = answers.find((element) => element.questionId === "134")
-    ? answers.find((element) => element.questionId === "134")
+  const q12 = answers.find((element) => element.questionId === 134)
+    ? answers.find((element) => element.questionId === 134)
     : 0;
 
   const q12_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q12.answer);
 
-  const q13 = answers.find((element) => element.questionId === "135")
-    ? answers.find((element) => element.questionId === "135")
+  const q13 = answers.find((element) => element.questionId === 135)
+    ? answers.find((element) => element.questionId === 135)
     : 0;
 
   const q13_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q13.answer);
 
-  const q14 = answers.find((element) => element.questionId === "136")
-    ? answers.find((element) => element.questionId === "136")
+  const q14 = answers.find((element) => element.questionId === 136)
+    ? answers.find((element) => element.questionId === 136)
     : 0;
 
   const q14_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q14.answer);
 
-  const q15_1 = answers.find((element) => element.questionId === "137")
-    ? answers.find((element) => element.questionId === "137")
+  const q15_1 = answers.find((element) => element.questionId === 137)
+    ? answers.find((element) => element.questionId === 137)
     : 0;
 
   const q15_1_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q15_1.answer);
 
-  const q15_2 = answers.find((element) => element.questionId === "138")
-    ? answers.find((element) => element.questionId === "138")
+  const q15_2 = answers.find((element) => element.questionId === 138)
+    ? answers.find((element) => element.questionId === 138)
     : 0;
 
   const q15_2_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q15_2.answer);
 
-  const q15_3 = answers.find((element) => element.questionId === "139")
-    ? answers.find((element) => element.questionId === "139")
+  const q15_3 = answers.find((element) => element.questionId === 139)
+    ? answers.find((element) => element.questionId === 139)
     : 0;
 
   const q15_3_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q15_3.answer);
 
-  const q15_4 = answers.find((element) => element.questionId === "140")
-    ? answers.find((element) => element.questionId === "140")
+  const q15_4 = answers.find((element) => element.questionId === 140)
+    ? answers.find((element) => element.questionId === 140)
     : 0;
 
   const q15_4_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q15_4.answer);
 
-  const q16 = answers.find((element) => element.questionId === "141")
-    ? answers.find((element) => element.questionId === "141")
+  const q16 = answers.find((element) => element.questionId === 141)
+    ? answers.find((element) => element.questionId === 141)
     : 0;
 
   const q16_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q16.answer);
 
-  const q17 = answers.find((element) => element.questionId === "142")
-    ? answers.find((element) => element.questionId === "142")
+  const q17 = answers.find((element) => element.questionId === 142)
+    ? answers.find((element) => element.questionId === 142)
     : 0;
 
   const q17_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q17.answer);
 
-  const q18 = answers.find((element) => element.questionId === "143")
-    ? answers.find((element) => element.questionId === "143")
+  const q18 = answers.find((element) => element.questionId === 143)
+    ? answers.find((element) => element.questionId === 143)
     : 0;
 
   const q18_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q18.answer);
 
-  const q19 = answers.find((element) => element.questionId === "144")
-    ? answers.find((element) => element.questionId === "144")
+  const q19 = answers.find((element) => element.questionId === 144)
+    ? answers.find((element) => element.questionId === 144)
     : 0;
 
   const q19_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q19.answer);
 
-  const q20 = answers.find((element) => element.questionId === "145")
-    ? answers.find((element) => element.questionId === "145")
+  const q20 = answers.find((element) => element.questionId === 145)
+    ? answers.find((element) => element.questionId === 145)
     : 0;
 
   const q20_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q20.answer);
 
-  const q21 = answers.find((element) => element.questionId === "146")
-    ? answers.find((element) => element.questionId === "146")
+  const q21 = answers.find((element) => element.questionId === 146)
+    ? answers.find((element) => element.questionId === 146)
     : 0;
 
   const q21_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q21.answer);
 
-  const q22 = answers.find((element) => element.questionId === "147")
-    ? answers.find((element) => element.questionId === "147")
+  const q22 = answers.find((element) => element.questionId === 147)
+    ? answers.find((element) => element.questionId === 147)
     : 0;
 
   const q22_ans = mappedResult
     .flat()
     .find((option) => option.refOptionId === q22.answer);
 
-  const q23 = answers.find((element) => element.questionId === "148")
-    ? answers.find((element) => element.questionId === "148")
+  const q23 = answers.find((element) => element.questionId === 148)
+    ? answers.find((element) => element.questionId === 148)
     : 0;
 
   const q23_ans = mappedResult
