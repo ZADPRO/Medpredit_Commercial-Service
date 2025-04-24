@@ -98,6 +98,7 @@ WHERE
     OR rpt."refUserId" = $1
   )
   AND rpt."refPTcreatedDate"::DATE <= $2::DATE
+  AND rc."refLanCode" = '1'
 ORDER BY
   rusd."refQCategoryId",
   rusd."refUSDId" DESC;
