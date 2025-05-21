@@ -572,19 +572,19 @@ export const purchasePackageModel = async (
         const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
         const oneday_cgst = oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
 
-        const minus_amount = (oldPackage_amount -
+        const minus_amount = (parseInt(oldPackage.refPkgValidDays) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_amount;
 
-        const minus_sgst = (oldPackage_sgst -
+        const minus_sgst = (parseInt(oldPackage.refPkgValidDays) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_sgst;
 
-        const minus_cgst = (oldPackage_cgst -
+        const minus_cgst = (parseInt(oldPackage.refPkgValidDays) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
@@ -626,9 +626,9 @@ export const purchasePackageModel = async (
           Subscription.rows[0].refSubscriptionId,
           id,
           packageId,
-          newPackage_amount - minus_amount,
-          newPackage_sgst - minus_sgst,
-          newPackage_cgst - minus_cgst,
+          parseFloat((newPackage_amount - minus_amount).toFixed(2)),
+          parseFloat((newPackage_sgst - minus_sgst).toFixed(2)),
+          parseFloat((newPackage_cgst - minus_cgst).toFixed(2)),
           method,
           createdAt,
           txnkey,
@@ -659,9 +659,12 @@ export const purchasePackageModel = async (
           id,
           packageId,
           packages.refIsOffer
-            ? parseFloat(packages.refPkgAmount) -
-            (parseFloat(packages.refOfferPrice) / 100) * packages.refPkgAmount
-            : packages.refPkgAmount,
+            ? parseFloat(
+              (parseFloat(packages.refPkgAmount) -
+                (parseFloat(packages.refOfferPrice) / 100) * packages.refPkgAmount
+              ).toFixed(2)
+            )
+            : parseFloat(packages.refPkgAmount).toFixed(2),
           Math.round(((parseFloat(getGST.rows[0].refSGST) / 100) * parseFloat(packages.refPkgAmount)) * 100) / 100,
           Math.round(((parseFloat(getGST.rows[0].refCGST) / 100) * parseFloat(packages.refPkgAmount)) * 100) / 100,
           method,
