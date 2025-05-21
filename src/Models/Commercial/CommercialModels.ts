@@ -572,19 +572,19 @@ export const purchasePackageModel = async (
         const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
         const oneday_cgst = oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
 
-        const minus_amount = (parseInt(oldPackage.refTransactionAmount) -
+        const minus_amount = (oldPackage_amount -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_amount;
 
-        const minus_sgst = (parseInt(oldPackage.refTransactionSGST) -
+        const minus_sgst = (oldPackage_sgst -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_sgst;
 
-        const minus_cgst = (parseInt(oldPackage.refTransactionCGST) -
+        const minus_cgst = (oldPackage_cgst -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
@@ -626,9 +626,9 @@ export const purchasePackageModel = async (
           Subscription.rows[0].refSubscriptionId,
           id,
           packageId,
-          Math.round(newPackage_amount - minus_amount * 100) / 100,
-          Math.round(newPackage_sgst - minus_sgst * 100) / 100,
-          Math.round(newPackage_cgst - minus_cgst * 100) / 100,
+          newPackage_amount - minus_amount,
+          newPackage_sgst - minus_sgst,
+          newPackage_cgst - minus_cgst,
           method,
           createdAt,
           txnkey,
