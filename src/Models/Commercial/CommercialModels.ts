@@ -572,19 +572,19 @@ export const purchasePackageModel = async (
         const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
         const oneday_cgst = oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
 
-        const minus_amount = (parseInt(oldPackage.refPkgValidDays) -
+        const minus_amount = (parseInt(oldPackage.refTransactionAmount) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_amount;
 
-        const minus_sgst = (parseInt(oldPackage.refPkgValidDays) -
+        const minus_sgst = (parseInt(oldPackage.refTransactionSGST) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
           )) * oneday_sgst;
 
-        const minus_cgst = (parseInt(oldPackage.refPkgValidDays) -
+        const minus_cgst = (parseInt(oldPackage.refTransactionCGST) -
           calculateDaysDifference(
             oldPackage.refSubStartDate,
             createdAt.toISOString().split("T")[0]
