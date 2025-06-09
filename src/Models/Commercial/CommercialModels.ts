@@ -31,6 +31,7 @@ import {
   checkSubscriptionsQuery,
   checkUserRelationQuery,
   communicationUpdateQuery,
+  EmailIDForPayment,
   getAllValidPackageQuery,
   getFamilyMembersQuery,
   getGSTQuery,
@@ -822,9 +823,7 @@ export const purchasePackageModel = async (
         ]);
 
         logger.info("id", id);
-        const UserEmailQuery = await connection.query(UserEmailForPayment, [
-          id,
-        ]);
+        const UserEmailQuery = await connection.query(EmailIDForPayment, [id]);
         logger.info("UserEmailQuery else", UserEmailQuery.rows);
 
         const resultData = UserEmailQuery.rows;

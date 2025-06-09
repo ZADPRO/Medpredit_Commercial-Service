@@ -287,3 +287,28 @@ JOIN public."Users" u ON rpt."refUserId" = u."refUserId"
 JOIN public."refCommunication" rcn ON rcn."refUserId" = u."refUserId"
 WHERE rpt."refUserId"=$1 LIMIT 1;
 `;
+
+export const EmailIDForPayment = `
+SELECT
+  u."refUserFname",
+  u."refUserLname",
+  rcn."refUserEmail",
+  rpt."refTransactionId",
+  rpt."refInvoiceId",
+  rpt."refTransactionAmount",
+  rpt."refTransactionSGST",
+  rpt."refTransactionCGST",
+  rpt."refTransactionMethod",
+  rpt."refTransactionDate",
+  rpt."refTransactionKey",
+  rp."refPkgName"
+FROM
+  public."refPaymentTransaction" rpt
+  JOIN public."refPackages" rp ON rp."refPkgId" = rpt."refPkgId"
+  JOIN public."Users" u ON rpt."refUserId" = u."refUserId"
+  JOIN public."refCommunication" rcn ON rcn."refUserId" = u."refUserId"
+WHERE
+  rpt."refUserId" = $1
+LIMIT
+  1;
+`;
