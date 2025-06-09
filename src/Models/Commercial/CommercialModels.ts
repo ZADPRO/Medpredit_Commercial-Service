@@ -581,16 +581,16 @@ export const purchasePackageModel = async (
     ]);
 
     const packages = getPackageQuery.rows[0];
-    console.log("packages", packages);
-    console.log("packageId", txnkey);
+    logger.info("packages", packages);
+    logger.info("packageId", txnkey);
 
     const key_id = process.env.VITE_RZR_API_KEY;
-    console.log("key_id", key_id);
+    logger.info("key_id", key_id);
     const key_secret = process.env.VITE_RZR_SKT_KEY;
-    console.log("key_secret", key_secret);
+    logger.info("key_secret", key_secret);
 
     const authToken = btoa(`${key_id}:${key_secret}`);
-    console.log("authToken", authToken);
+    logger.info("authToken", authToken);
 
     if (getPackageQuery.rows.length === 1) {
       if (checkSubscriptions.rows.length > 0) {
@@ -652,9 +652,9 @@ export const purchasePackageModel = async (
           (parseFloat(getGST.rows[0].refSGST) / 100) * newPackage_amount;
         const newPackage_cgst =
           (parseFloat(getGST.rows[0].refCGST) / 100) * newPackage_amount;
-        console.log("newPackage_amount", newPackage_amount);
-        console.log("newPackage_sgst", newPackage_sgst);
-        console.log("newPackage_cgst", newPackage_cgst);
+        logger.info("newPackage_amount", newPackage_amount);
+        logger.info("newPackage_sgst", newPackage_sgst);
+        logger.info("newPackage_cgst", newPackage_cgst);
 
         await connection.query(updatedSubscriptionQuery, [
           createdAt.toISOString().split("T")[0],
@@ -671,15 +671,15 @@ export const purchasePackageModel = async (
 
         if (resultData.length > 0) {
           const refUserEmail = resultData[0].refUserEmail;
-          console.log("refUserEmail", refUserEmail);
+          logger.info("refUserEmail", refUserEmail);
         } else {
-          console.log("No user found.");
+          logger.info("No user found.");
         }
 
         const { refPkgName, refTransactionAmount } = checkSubscriptions.rows[0];
 
-        console.log("Old Plan Name:", refPkgName);
-        console.log("Transaction Amount:", refTransactionAmount);
+        logger.info("Old Plan Name:", refPkgName);
+        logger.info("Transaction Amount:", refTransactionAmount);
 
         const mailProgress = async () => {
           const sendEmailCont = {
@@ -734,12 +734,12 @@ export const purchasePackageModel = async (
           createdBy,
         ]);
 
-        console.log("newPackage_amount", newPackage_amount);
-        console.log("minus_amount", minus_amount);
-        console.log("newPackage_sgst", newPackage_sgst);
-        console.log("newPackage_cgst", newPackage_cgst);
-        console.log("minus_sgst", minus_sgst);
-        console.log("minus_cgst", minus_cgst);
+        logger.info("newPackage_amount", newPackage_amount);
+        logger.info("minus_amount", minus_amount);
+        logger.info("newPackage_sgst", newPackage_sgst);
+        logger.info("newPackage_cgst", newPackage_cgst);
+        logger.info("minus_sgst", minus_sgst);
+        logger.info("minus_cgst", minus_cgst);
         const grandTotal =
           Number(newPackage_amount) -
           Number(minus_amount) +
@@ -749,7 +749,7 @@ export const purchasePackageModel = async (
           Number(minus_cgst);
 
         const finalAmount = grandTotal * 100;
-        console.log("grandTotal LINE 764", finalAmount);
+        logger.info("grandTotal LINE 764", finalAmount);
 
         axios
           .post(
@@ -766,7 +766,7 @@ export const purchasePackageModel = async (
             }
           )
           .then((res) => {
-            console.log("Payment captured successfully:", res.data);
+            logger.info("Payment captured successfully:", res.data);
           })
           .catch((err) => {
             console.error(
@@ -821,20 +821,20 @@ export const purchasePackageModel = async (
           createdBy,
         ]);
 
-        console.log("id", id);
+        logger.info("id", id);
         const UserEmailQuery = await connection.query(UserEmailForPayment, [
           id,
         ]);
-        console.log("UserEmailQuery else", UserEmailQuery.rows);
+        logger.info("UserEmailQuery else", UserEmailQuery.rows);
 
         const resultData = UserEmailQuery.rows;
-        console.log("resultData", resultData);
+        logger.info("resultData", resultData);
 
         if (resultData.length > 0) {
           const refUserEmail = resultData[0].refUserEmail;
-          console.log("refUserEmail", refUserEmail);
+          logger.info("refUserEmail", refUserEmail);
         } else {
-          console.log("No user found.");
+          logger.info("No user found.");
         }
 
         const mailProgress = async () => {
@@ -871,7 +871,7 @@ export const purchasePackageModel = async (
           resultData[0].refTransactionCGST;
 
         const finalAmount = grandTotal * 100;
-        console.log("grandTotal", finalAmount);
+        logger.info("grandTotal", finalAmount);
 
         axios
           .post(
@@ -888,7 +888,7 @@ export const purchasePackageModel = async (
             }
           )
           .then((res) => {
-            console.log("Payment captured successfully:", res.data);
+            logger.info("Payment captured successfully:", res.data);
           })
           .catch((err) => {
             console.error(
