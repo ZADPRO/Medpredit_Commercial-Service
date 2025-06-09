@@ -176,7 +176,12 @@ const getMainCategoryController = async (req, res) => {
       doctorId = employeeId;
     }
 
-    const result = await getMainCategoryModels(doctorId, patientId, hospitalId, refLanCode);
+    const result = await getMainCategoryModels(
+      doctorId,
+      patientId,
+      hospitalId,
+      refLanCode
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -210,7 +215,8 @@ const getSubMainCategoryController = async (req, res) => {
 
 const getCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId, patientId, employeeId, hospitalId, refLanCode } = req.body;
+    const { SubCategoryId, patientId, employeeId, hospitalId, refLanCode } =
+      req.body;
     let doctorId = req.userData.userid;
 
     if (employeeId) {
@@ -252,7 +258,14 @@ const getQuestionsController = async (req, res) => {
 
 const postAnswersController = async (req, res) => {
   try {
-    const { patientId, categoryId, answers, employeeId, hospitalId, refLanCode } = req.body;
+    const {
+      patientId,
+      categoryId,
+      answers,
+      employeeId,
+      hospitalId,
+      refLanCode,
+    } = req.body;
 
     let doctorId = req.userData.userid;
 

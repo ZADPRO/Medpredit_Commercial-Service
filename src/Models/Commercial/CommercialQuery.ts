@@ -182,7 +182,6 @@ ORDER BY
   rs."refSubscriptionId" ASC
 `;
 
-
 export const updatedSubscriptionQuery = `
 UPDATE
   public."refSubscription"
@@ -243,7 +242,6 @@ ORDER BY
   u."refUserId" ASC
   `;
 
-
 export const updateRelationQuery = `
   UPDATE
   public."refRelation"
@@ -280,3 +278,12 @@ ORDER BY
 LIMIT
   1
   `;
+
+export const UserEmailForPayment = `
+SELECT u."refUserFname", u."refUserLname", rcn."refUserEmail", rpt."refTransactionId", rpt."refInvoiceId", rpt."refTransactionAmount", rpt."refTransactionSGST", rpt."refTransactionCGST", rpt."refTransactionMethod", rpt."refTransactionDate", rpt."refTransactionKey", rsn."refSubStartDate", rsn."refSubEndDate", rp."refPkgName"  FROM public."refPaymentTransaction" rpt
+JOIN public."refSubscription" rsn ON rpt."refUserId" = rsn."refUserId"
+JOIN public."refPackages" rp ON rp."refPkgId" = rpt."refPkgId"
+JOIN public."Users" u ON rpt."refUserId" = u."refUserId"
+JOIN public."refCommunication" rcn ON rcn."refUserId" = u."refUserId"
+WHERE rpt."refUserId"=$1 LIMIT 1;
+`;

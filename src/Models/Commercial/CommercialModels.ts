@@ -44,8 +44,15 @@ import {
   SelectPackageQuery,
   updatedSubscriptionQuery,
   updateRelationQuery,
+  UserEmailForPayment,
   userUpdateQuery,
 } from "./CommercialQuery";
+import {
+  emailContForPackageUpgrade,
+  emailContForPaymentUpgrade,
+} from "./mailContents";
+import { sendEmail } from "../../Helper/mail";
+import axios from "axios";
 
 const DB = require("../../Helper/DBConncetion");
 const bcrypt = require("bcrypt");
@@ -177,7 +184,6 @@ export const UserSignUpModel = async (values: any) => {
         values.createdAt,
         values.createdBy,
       ]);
-
 
       return {
         status: true,
@@ -395,9 +401,10 @@ export const getAllValidPackageModel = async (
 
     const getGST = await connection.query(getGSTQuery);
 
-    const isFirstPackage = await connection.query(isFirstcheckSubscriptionsQuery, [
-      refUserId
-    ])
+    const isFirstPackage = await connection.query(
+      isFirstcheckSubscriptionsQuery,
+      [refUserId]
+    );
 
     return {
       result: result.rows,
@@ -421,7 +428,6 @@ export const getOneValidPackageModel = async (
   currentDate: any,
   refUserId: any
 ) => {
-
   const connection = await DB();
 
   try {
@@ -437,34 +443,43 @@ export const getOneValidPackageModel = async (
 
       const oldPackage_amount = parseFloat(oldPackage.refPkgAmount);
 
-      const oldPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
-      const oldPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
+      const oldPackage_sgst =
+        (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
+      const oldPackage_cgst =
+        (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
 
-      const oneday_amount = oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
-      const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
-      const oneday_cgst = oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
+      const oneday_amount =
+        oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
+      const oneday_sgst =
+        oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
+      const oneday_cgst =
+        oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
 
-      const minus_amount = (parseInt(oldPackage.refPkgValidDays) -
-        calculateDaysDifference(
-          oldPackage.refSubStartDate,
-          currentDate.toISOString().split("T")[0]
-        )) * oneday_amount;
+      const minus_amount =
+        (parseInt(oldPackage.refPkgValidDays) -
+          calculateDaysDifference(
+            oldPackage.refSubStartDate,
+            currentDate.toISOString().split("T")[0]
+          )) *
+        oneday_amount;
 
-      const minus_sgst = (parseInt(oldPackage.refPkgValidDays) -
-        calculateDaysDifference(
-          oldPackage.refSubStartDate,
-          currentDate.toISOString().split("T")[0]
-        )) * oneday_sgst;
+      const minus_sgst =
+        (parseInt(oldPackage.refPkgValidDays) -
+          calculateDaysDifference(
+            oldPackage.refSubStartDate,
+            currentDate.toISOString().split("T")[0]
+          )) *
+        oneday_sgst;
 
-      const minus_cgst = (parseInt(oldPackage.refPkgValidDays) -
-        calculateDaysDifference(
-          oldPackage.refSubStartDate,
-          currentDate.toISOString().split("T")[0]
-        )) * oneday_cgst;
-
+      const minus_cgst =
+        (parseInt(oldPackage.refPkgValidDays) -
+          calculateDaysDifference(
+            oldPackage.refSubStartDate,
+            currentDate.toISOString().split("T")[0]
+          )) *
+        oneday_cgst;
 
       const totalminus = minus_amount + minus_cgst + minus_sgst;
-
 
       const result = await connection.query(SelectPackageQuery, [
         packageId,
@@ -475,18 +490,23 @@ export const getOneValidPackageModel = async (
 
       const newPackage_amount = newPackage.refIsOffer
         ? parseFloat(newPackage.refPkgAmount) -
-        (parseFloat(newPackage.refOfferPrice) / 100) * parseFloat(newPackage.refPkgAmount)
-        : parseFloat(newPackage.refPkgAmount)
-      const newPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * newPackage_amount;
-      const newPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * newPackage_amount;
+          (parseFloat(newPackage.refOfferPrice) / 100) *
+            parseFloat(newPackage.refPkgAmount)
+        : parseFloat(newPackage.refPkgAmount);
+      const newPackage_sgst =
+        (parseFloat(getGST.rows[0].refSGST) / 100) * newPackage_amount;
+      const newPackage_cgst =
+        (parseFloat(getGST.rows[0].refCGST) / 100) * newPackage_amount;
 
-      const totalPackage = newPackage_amount + newPackage_cgst + newPackage_sgst;
+      const totalPackage =
+        newPackage_amount + newPackage_cgst + newPackage_sgst;
 
       const totalAmount = totalPackage - totalminus;
 
-      const isFirstPackage = await connection.query(isFirstcheckSubscriptionsQuery, [
-        refUserId
-      ])
+      const isFirstPackage = await connection.query(
+        isFirstcheckSubscriptionsQuery,
+        [refUserId]
+      );
 
       return {
         result: result.rows,
@@ -511,10 +531,16 @@ export const getOneValidPackageModel = async (
 
       const getGST = await connection.query(getGSTQuery);
 
-      const TotalAmount = parseFloat(result.rows[0].refPkgAmount) + ((parseFloat(getGST.rows[0].refSGST) / 100) * parseFloat(result.rows[0].refPkgAmount)) + (((parseFloat(getGST.rows[0].refCGST) / 100) * parseFloat(result.rows[0].refPkgAmount)))
-      const isFirstPackage = await connection.query(isFirstcheckSubscriptionsQuery, [
-        refUserId
-      ])
+      const TotalAmount =
+        parseFloat(result.rows[0].refPkgAmount) +
+        (parseFloat(getGST.rows[0].refSGST) / 100) *
+          parseFloat(result.rows[0].refPkgAmount) +
+        (parseFloat(getGST.rows[0].refCGST) / 100) *
+          parseFloat(result.rows[0].refPkgAmount);
+      const isFirstPackage = await connection.query(
+        isFirstcheckSubscriptionsQuery,
+        [refUserId]
+      );
 
       return {
         result: result.rows,
@@ -555,40 +581,60 @@ export const purchasePackageModel = async (
     ]);
 
     const packages = getPackageQuery.rows[0];
+    console.log("packages", packages);
+    console.log("packageId", txnkey);
+
+    const key_id = process.env.VITE_RZR_API_KEY;
+    console.log("key_id", key_id);
+    const key_secret = process.env.VITE_RZR_SKT_KEY;
+    console.log("key_secret", key_secret);
+
+    const authToken = btoa(`${key_id}:${key_secret}`);
+    console.log("authToken", authToken);
 
     if (getPackageQuery.rows.length === 1) {
       if (checkSubscriptions.rows.length > 0) {
-
         const getGST = await connection.query(getGSTQuery);
 
         const oldPackage = checkSubscriptions.rows[0];
 
         const oldPackage_amount = parseFloat(oldPackage.refPkgAmount);
 
-        const oldPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
-        const oldPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
+        const oldPackage_sgst =
+          (parseFloat(getGST.rows[0].refSGST) / 100) * oldPackage_amount;
+        const oldPackage_cgst =
+          (parseFloat(getGST.rows[0].refCGST) / 100) * oldPackage_amount;
 
-        const oneday_amount = oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
-        const oneday_sgst = oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
-        const oneday_cgst = oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
+        const oneday_amount =
+          oldPackage_amount / parseInt(oldPackage.refPkgValidDays);
+        const oneday_sgst =
+          oldPackage_sgst / parseInt(oldPackage.refPkgValidDays);
+        const oneday_cgst =
+          oldPackage_cgst / parseInt(oldPackage.refPkgValidDays);
 
-        const minus_amount = (parseInt(oldPackage.refPkgValidDays) -
-          calculateDaysDifference(
-            oldPackage.refSubStartDate,
-            createdAt.toISOString().split("T")[0]
-          )) * oneday_amount;
+        const minus_amount =
+          (parseInt(oldPackage.refPkgValidDays) -
+            calculateDaysDifference(
+              oldPackage.refSubStartDate,
+              createdAt.toISOString().split("T")[0]
+            )) *
+          oneday_amount;
 
-        const minus_sgst = (parseInt(oldPackage.refPkgValidDays) -
-          calculateDaysDifference(
-            oldPackage.refSubStartDate,
-            createdAt.toISOString().split("T")[0]
-          )) * oneday_sgst;
+        const minus_sgst =
+          (parseInt(oldPackage.refPkgValidDays) -
+            calculateDaysDifference(
+              oldPackage.refSubStartDate,
+              createdAt.toISOString().split("T")[0]
+            )) *
+          oneday_sgst;
 
-        const minus_cgst = (parseInt(oldPackage.refPkgValidDays) -
-          calculateDaysDifference(
-            oldPackage.refSubStartDate,
-            createdAt.toISOString().split("T")[0]
-          )) * oneday_cgst;
+        const minus_cgst =
+          (parseInt(oldPackage.refPkgValidDays) -
+            calculateDaysDifference(
+              oldPackage.refSubStartDate,
+              createdAt.toISOString().split("T")[0]
+            )) *
+          oneday_cgst;
 
         const result = await connection.query(SelectPackageQuery, [
           packageId,
@@ -599,19 +645,70 @@ export const purchasePackageModel = async (
 
         const newPackage_amount = newPackage.refIsOffer
           ? parseFloat(newPackage.refPkgAmount) -
-          (parseFloat(newPackage.refOfferPrice) / 100) * parseFloat(newPackage.refPkgAmount)
-          : parseFloat(newPackage.refPkgAmount)
-        const newPackage_sgst = (parseFloat(getGST.rows[0].refSGST) / 100) * newPackage_amount;
-        const newPackage_cgst = (parseFloat(getGST.rows[0].refCGST) / 100) * newPackage_amount;
-
+            (parseFloat(newPackage.refOfferPrice) / 100) *
+              parseFloat(newPackage.refPkgAmount)
+          : parseFloat(newPackage.refPkgAmount);
+        const newPackage_sgst =
+          (parseFloat(getGST.rows[0].refSGST) / 100) * newPackage_amount;
+        const newPackage_cgst =
+          (parseFloat(getGST.rows[0].refCGST) / 100) * newPackage_amount;
+        console.log("newPackage_amount", newPackage_amount);
+        console.log("newPackage_sgst", newPackage_sgst);
+        console.log("newPackage_cgst", newPackage_cgst);
 
         await connection.query(updatedSubscriptionQuery, [
           createdAt.toISOString().split("T")[0],
           createdAt,
           createdBy,
-          oldPackage.refSubscriptionId
-        ])
+          oldPackage.refSubscriptionId,
+        ]);
 
+        const UserEmailQuery = await connection.query(UserEmailForPayment, [
+          id,
+        ]);
+
+        const resultData = UserEmailQuery.rows;
+
+        if (resultData.length > 0) {
+          const refUserEmail = resultData[0].refUserEmail;
+          console.log("refUserEmail", refUserEmail);
+        } else {
+          console.log("No user found.");
+        }
+
+        const { refPkgName, refTransactionAmount } = checkSubscriptions.rows[0];
+
+        console.log("Old Plan Name:", refPkgName);
+        console.log("Transaction Amount:", refTransactionAmount);
+
+        const mailProgress = async () => {
+          const sendEmailCont = {
+            to: resultData[0].refUserEmail,
+            subject: "Subscription Payment Upgraded Successful",
+            html: emailContForPackageUpgrade(
+              `${resultData[0].refUserFname} ${resultData[0].refUserLname}`,
+              resultData[0].refPkgName, // new plan
+              refPkgName, // old plan
+              resultData[0].refTransactionAmount +
+                resultData[0].refTransactionSGST +
+                resultData[0].refTransactionCGST,
+              resultData[0].refTransactionKey,
+              resultData[0].refTransactionDate,
+              resultData[0].refTransactionMethod,
+              resultData[0].refSubStartDate,
+              resultData[0].refSubEndDate,
+              "Medpredit"
+            ),
+          };
+
+          try {
+            await sendEmail(sendEmailCont);
+          } catch (error) {
+            console.error("Failed to send email:", error);
+          }
+        };
+
+        mailProgress().catch(console.error);
 
         const Subscription = await connection.query(InsertSubscriptionQuery, [
           packageId,
@@ -637,12 +734,51 @@ export const purchasePackageModel = async (
           createdBy,
         ]);
 
+        console.log("newPackage_amount", newPackage_amount);
+        console.log("minus_amount", minus_amount);
+        console.log("newPackage_sgst", newPackage_sgst);
+        console.log("newPackage_cgst", newPackage_cgst);
+        console.log("minus_sgst", minus_sgst);
+        console.log("minus_cgst", minus_cgst);
+        const grandTotal =
+          Number(newPackage_amount) -
+          Number(minus_amount) +
+          Number(newPackage_sgst) -
+          Number(minus_sgst) +
+          Number(newPackage_cgst) -
+          Number(minus_cgst);
+
+        const finalAmount = grandTotal * 100;
+        console.log("grandTotal LINE 764", finalAmount);
+
+        axios
+          .post(
+            `https://api.razorpay.com/v1/payments/${txnkey}/capture`,
+            {
+              amount: Math.round(finalAmount),
+              currency: "INR",
+            },
+            {
+              headers: {
+                Authorization: `Basic ${authToken}`, // 🔐 Correct header
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((res) => {
+            console.log("Payment captured successfully:", res.data);
+          })
+          .catch((err) => {
+            console.error(
+              "Error capturing payment:",
+              err.response?.data || err
+            );
+          });
 
         return {
           status: true,
         };
       } else {
-
         const Subscription = await connection.query(InsertSubscriptionQuery, [
           packageId,
           id,
@@ -660,13 +796,23 @@ export const purchasePackageModel = async (
           packageId,
           packages.refIsOffer
             ? parseFloat(
-              (parseFloat(packages.refPkgAmount) -
-                (parseFloat(packages.refOfferPrice) / 100) * packages.refPkgAmount
-              ).toFixed(2)
-            )
+                (
+                  parseFloat(packages.refPkgAmount) -
+                  (parseFloat(packages.refOfferPrice) / 100) *
+                    packages.refPkgAmount
+                ).toFixed(2)
+              )
             : parseFloat(packages.refPkgAmount).toFixed(2),
-          Math.round(((parseFloat(getGST.rows[0].refSGST) / 100) * parseFloat(packages.refPkgAmount)) * 100) / 100,
-          Math.round(((parseFloat(getGST.rows[0].refCGST) / 100) * parseFloat(packages.refPkgAmount)) * 100) / 100,
+          Math.round(
+            (parseFloat(getGST.rows[0].refSGST) / 100) *
+              parseFloat(packages.refPkgAmount) *
+              100
+          ) / 100,
+          Math.round(
+            (parseFloat(getGST.rows[0].refCGST) / 100) *
+              parseFloat(packages.refPkgAmount) *
+              100
+          ) / 100,
           method,
           createdAt,
           txnkey,
@@ -674,6 +820,82 @@ export const purchasePackageModel = async (
           createdAt,
           createdBy,
         ]);
+
+        console.log("id", id);
+        const UserEmailQuery = await connection.query(UserEmailForPayment, [
+          id,
+        ]);
+        console.log("UserEmailQuery else", UserEmailQuery.rows);
+
+        const resultData = UserEmailQuery.rows;
+        console.log("resultData", resultData);
+
+        if (resultData.length > 0) {
+          const refUserEmail = resultData[0].refUserEmail;
+          console.log("refUserEmail", refUserEmail);
+        } else {
+          console.log("No user found.");
+        }
+
+        const mailProgress = async () => {
+          const sendEmailCont = {
+            to: resultData[0].refUserEmail,
+            subject: "Subscription Payment Successful",
+            html: emailContForPaymentUpgrade(
+              resultData[0].refUserFname + resultData[0].refUserLname,
+              resultData[0].refPkgName,
+              resultData[0].refTransactionAmount +
+                resultData[0].refTransactionSGST +
+                resultData[0].refTransactionCGST,
+              resultData[0].refTransactionKey,
+              resultData[0].refTransactionDate,
+              resultData[0].refTransactionMethod,
+              resultData[0].refSubStartDate,
+              resultData[0].refSubEndDate,
+              "Medpredit"
+            ),
+          };
+
+          try {
+            await sendEmail(sendEmailCont);
+          } catch (error) {
+            console.error("Failed to send email:", error);
+          }
+        };
+
+        mailProgress().catch(console.error);
+
+        const grandTotal =
+          resultData[0].refTransactionAmount +
+          resultData[0].refTransactionSGST +
+          resultData[0].refTransactionCGST;
+
+        const finalAmount = grandTotal * 100;
+        console.log("grandTotal", finalAmount);
+
+        axios
+          .post(
+            `https://api.razorpay.com/v1/payments/${txnkey}/capture`,
+            {
+              amount: Math.round(finalAmount),
+              currency: "INR",
+            },
+            {
+              headers: {
+                Authorization: `Basic ${authToken}`, // 🔐 Correct header
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((res) => {
+            console.log("Payment captured successfully:", res.data);
+          })
+          .catch((err) => {
+            console.error(
+              "Error capturing payment:",
+              err.response?.data || err
+            );
+          });
 
         return {
           status: true,
@@ -714,46 +936,49 @@ export const getPaymentTransactionHistoryModel = async (refUserId) => {
   }
 };
 
-export const getFamilyMembersModel = async (mobileNumber: any, createdAt: any, createdBy: any) => {
+export const getFamilyMembersModel = async (
+  mobileNumber: any,
+  createdAt: any,
+  createdBy: any
+) => {
   const connection = await DB();
   try {
-
     const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
       createdAt,
       createdBy,
     ]);
 
-    const getFamilyMembers = await connection.query(getFamilyMembersQuery, [mobileNumber]);
+    const getFamilyMembers = await connection.query(getFamilyMembersQuery, [
+      mobileNumber,
+    ]);
 
     return {
       status: true,
       familyMembers: getFamilyMembers.rows,
-      checkSubscriptions: checkSubscriptions.rows
-    }
-
+      checkSubscriptions: checkSubscriptions.rows,
+    };
   } catch (error) {
     logger.error(`Getting the Family Users, Error: ${error}`);
     throw error;
   } finally {
     await connection.end();
   }
-}
+};
 
 export const postFamilyUserModel = async (values: any) => {
   const connection = await DB();
   const createdAt = CurrentTime();
 
   try {
-
     const checkMobileNumber = await connection.query(checkMobileNumberQuery, [
       values.mobilenumber,
     ]);
 
     if (values.isSame ? true : checkMobileNumber.rows.length === 0) {
-      const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
-        createdAt,
-        values.refUserId,
-      ]);
+      const checkSubscriptions = await connection.query(
+        checkSubscriptionsQuery,
+        [createdAt, values.refUserId]
+      );
 
       if (checkSubscriptions.rows.length > 0) {
         const getPassword = await connection.query(getPasswordQuery, [
@@ -779,7 +1004,9 @@ export const postFamilyUserModel = async (values: any) => {
 
         const newUservaluesInsert = [
           getOverallId.rows[0].overAllId,
-          values.branch === "commercial" ? "USER" + patientId : "MED" + patientId,
+          values.branch === "commercial"
+            ? "USER" + patientId
+            : "MED" + patientId,
           "3",
           values.refUserFname,
           values.refUserLname,
@@ -813,7 +1040,9 @@ export const postFamilyUserModel = async (values: any) => {
         const newUserDomainValue = [
           getOverallId.rows[0].overAllId,
           password,
-          values.isSame ? hashedPassword : await bcrypt.hash(values.userpassword, 10),
+          values.isSame
+            ? hashedPassword
+            : await bcrypt.hash(values.userpassword, 10),
           createdAt,
           values.doctorId,
         ];
@@ -827,9 +1056,8 @@ export const postFamilyUserModel = async (values: any) => {
           values.realtionType,
           true,
           createdAt,
-          values.doctorId
+          values.doctorId,
         ]);
-
 
         return {
           status: true,
@@ -843,13 +1071,9 @@ export const postFamilyUserModel = async (values: any) => {
     } else {
       return {
         message: "Mobile Number Already Exits",
-        status: false
-      }
+        status: false,
+      };
     }
-
-
-
-
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -860,20 +1084,21 @@ export const postFamilyUserModel = async (values: any) => {
   }
 };
 
-
-export const getParticularUserMobileNumberModel = async (userMobileNo: any, refUserId: any) => {
+export const getParticularUserMobileNumberModel = async (
+  userMobileNo: any,
+  refUserId: any
+) => {
   const connection = await DB();
   try {
-
-    const checkParticularUserMobile = await connection.query(checkParticularUserMobileQuery, [
-      userMobileNo, refUserId
-    ]);
+    const checkParticularUserMobile = await connection.query(
+      checkParticularUserMobileQuery,
+      [userMobileNo, refUserId]
+    );
 
     return {
       status: true,
-      userData: checkParticularUserMobile.rows
+      userData: checkParticularUserMobile.rows,
     };
-
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -882,34 +1107,35 @@ export const getParticularUserMobileNumberModel = async (userMobileNo: any, refU
     await connection.query("COMMIT;");
     await connection.end();
   }
-}
+};
 
-export const linkFamilyMemberModel = async (refUserId: any, headMobileNumber: any, createdAt: any, createdBy: any, relationName: any, password: any) => {
+export const linkFamilyMemberModel = async (
+  refUserId: any,
+  headMobileNumber: any,
+  createdAt: any,
+  createdBy: any,
+  relationName: any,
+  password: any
+) => {
   const connection = await DB();
   try {
-
     const mobileNoList = await connection.query(getUsersListMobileNo, [
       headMobileNumber,
     ]);
 
-
     if (mobileNoList.rows.length > 0) {
-
       const checkChangePass = await connection.query(changePasswordQuery, [
-        mobileNoList.rows[0].refUserId, password
-      ])
-
+        mobileNoList.rows[0].refUserId,
+        password,
+      ]);
 
       if (checkChangePass.rows.length > 0) {
-
-        const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
-          createdAt,
-          refUserId
-        ]);
-
+        const checkSubscriptions = await connection.query(
+          checkSubscriptionsQuery,
+          [createdAt, refUserId]
+        );
 
         if (checkSubscriptions.rows.length === 0) {
-
           // await connection.query(updateRelationQuery, [
           //   false,
           //   'No Family Memeber',
@@ -918,9 +1144,10 @@ export const linkFamilyMemberModel = async (refUserId: any, headMobileNumber: an
           //   refRelationId
           // ]);
 
-          const checkUserRelation = await connection.query(checkUserRelationQuery, [refUserId, headMobileNumber]);
-
-
+          const checkUserRelation = await connection.query(
+            checkUserRelationQuery,
+            [refUserId, headMobileNumber]
+          );
 
           if (checkUserRelation.rows.length > 0) {
             await connection.query(updateRelationQuery, [
@@ -928,7 +1155,7 @@ export const linkFamilyMemberModel = async (refUserId: any, headMobileNumber: an
               relationName,
               createdAt,
               createdBy,
-              checkUserRelation.rows[0].refRId
+              checkUserRelation.rows[0].refRId,
             ]);
           } else {
             await connection.query(addRelationQuery, [
@@ -938,36 +1165,30 @@ export const linkFamilyMemberModel = async (refUserId: any, headMobileNumber: an
               true,
               createdAt,
               createdBy,
-            ])
+            ]);
           }
 
           return {
-            status: true
-          }
-
+            status: true,
+          };
         } else {
           return {
             status: false,
-            message: "User Already in the Another Subscription Plan"
-          }
+            message: "User Already in the Another Subscription Plan",
+          };
         }
-
-
       } else {
         return {
           status: false,
-          message: "Invalid Password"
-        }
+          message: "Invalid Password",
+        };
       }
-
     } else {
       return {
         status: false,
-        message: "Invalid Mobile Number"
-      }
+        message: "Invalid Mobile Number",
+      };
     }
-
-
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -976,55 +1197,51 @@ export const linkFamilyMemberModel = async (refUserId: any, headMobileNumber: an
     await connection.query("COMMIT;");
     await connection.end();
   }
+};
 
-}
-
-
-export const unlinkFamilyMemberModel = async (refRelationId: any, updatedAt: any, updatedBy: any, password: any, headMobileNumber: any) => {
+export const unlinkFamilyMemberModel = async (
+  refRelationId: any,
+  updatedAt: any,
+  updatedBy: any,
+  password: any,
+  headMobileNumber: any
+) => {
   const connection = await DB();
   try {
-
     const mobileNoList = await connection.query(getUsersListMobileNo, [
       headMobileNumber,
     ]);
 
-
     if (mobileNoList.rows.length > 0) {
-
       const checkChangePass = await connection.query(changePasswordQuery, [
-        mobileNoList.rows[0].refUserId, password
-      ])
-
+        mobileNoList.rows[0].refUserId,
+        password,
+      ]);
 
       if (checkChangePass.rows.length > 0) {
         await connection.query(updateRelationQuery, [
           false,
-          'No Family Memeber',
+          "No Family Memeber",
           updatedAt,
           updatedBy,
-          refRelationId
+          refRelationId,
         ]);
 
         return {
-          status: true
-        }
-
-
+          status: true,
+        };
       } else {
         return {
           status: false,
-          message: "Invalid Password"
-        }
+          message: "Invalid Password",
+        };
       }
-
     } else {
       return {
         status: false,
-        message: "Invalid Mobile Number"
-      }
+        message: "Invalid Mobile Number",
+      };
     }
-
-
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -1033,23 +1250,24 @@ export const unlinkFamilyMemberModel = async (refRelationId: any, updatedAt: any
     await connection.query("COMMIT;");
     await connection.end();
   }
-
-}
+};
 
 export const getDashbardModel = async (refUserId: any, createdAt: any) => {
   const connection = await DB();
   try {
     const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
       createdAt,
-      refUserId
+      refUserId,
     ]);
 
     const isHigherQuestion = await connection.query(getAssessmentNoQuery, [
-      refUserId, ['9', '10', '11', '43']
+      refUserId,
+      ["9", "10", "11", "43"],
     ]);
 
     const isLowerQuestion = await connection.query(getAssessmentNoQuery, [
-      refUserId, ['8', '12', '13', '51']
+      refUserId,
+      ["8", "12", "13", "51"],
     ]);
 
     const version = await connection.query(getVersionQuery);
@@ -1059,9 +1277,8 @@ export const getDashbardModel = async (refUserId: any, createdAt: any) => {
       checkSubscriptions: checkSubscriptions.rows,
       isHigherQuestion: isHigherQuestion.rows,
       isLowerQuestion: isLowerQuestion.rows,
-      version: version.rows
-    }
-
+      version: version.rows,
+    };
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -1070,20 +1287,17 @@ export const getDashbardModel = async (refUserId: any, createdAt: any) => {
     await connection.query("COMMIT;");
     await connection.end();
   }
-
-}
+};
 
 export const getLanguageModel = async () => {
   const connection = await DB();
   try {
-
     const getLanguage = await connection.query(getLanguageQuery);
 
     return {
       status: true,
-      getLanguage: getLanguage.rows
-    }
-
+      getLanguage: getLanguage.rows,
+    };
   } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
@@ -1092,23 +1306,21 @@ export const getLanguageModel = async () => {
     await connection.query("COMMIT;");
     await connection.end();
   }
-
-}
+};
 
 export const getVersionModel = async () => {
   const connection = await DB();
   try {
-
     const version = await connection.query(getVersionQuery);
 
     return {
       status: true,
-      version: version.rows
-    }
+      version: version.rows,
+    };
   } catch (error) {
     console.error("Something went Wrong", error);
     throw error;
   } finally {
     await connection.end();
   }
-}
+};

@@ -298,7 +298,7 @@ const purchasePackageController = async (req, res) => {
       createdBy
     );
 
-    return res.status(200).json(encrypt(result, true));
+    return res.status(200).json(encrypt(result, false));
   } catch (error) {
     logger.error(`Adding Package (purchasePackageController): (${error})`);
     console.error("Something went Wrong", error);
@@ -320,27 +320,28 @@ const getPaymentTransactionHistoryController = async (req, res) => {
   }
 };
 
-
 const getFamilyMembersController = async (req, res) => {
-
   try {
-
     const { mobileNumber } = req.body;
 
     const createdAt = CurrentTime();
     const createdBy = req.userData.userid;
 
-    const result = await getFamilyMembersModel(mobileNumber, createdAt, createdBy);
+    const result = await getFamilyMembersModel(
+      mobileNumber,
+      createdAt,
+      createdBy
+    );
 
     return res.status(200).json(encrypt(result, true));
-
   } catch (error) {
-    logger.error(`Get the Family Memebers (getFamilyMembersController): (${error})`);
+    logger.error(
+      `Get the Family Memebers (getFamilyMembersController): (${error})`
+    );
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-
-}
+};
 
 const postFamilyUserController = async (req, res) => {
   try {
@@ -362,7 +363,7 @@ const postFamilyUserController = async (req, res) => {
       isSame,
       mobilenumber,
       userpassword,
-      realtionType
+      realtionType,
     } = req.body;
 
     const doctorId = req.userData.userid;
@@ -388,7 +389,7 @@ const postFamilyUserController = async (req, res) => {
       isSame,
       mobilenumber,
       userpassword,
-      realtionType
+      realtionType,
     };
 
     const result = await postFamilyUserModel(values);
@@ -409,22 +410,24 @@ const postFamilyUserController = async (req, res) => {
 
 const getParticularUserMobileNumberController = async (req, res) => {
   try {
-
     const refUserId = req.userData.userid;
 
     const { mobileNumber } = req.body;
 
-    const result = await getParticularUserMobileNumberModel(mobileNumber, refUserId);
+    const result = await getParticularUserMobileNumberModel(
+      mobileNumber,
+      refUserId
+    );
 
     return res.status(200).json(encrypt(result, true));
-
   } catch (error) {
-    logger.error(`Get the Family Memebers (getParticularUserMobileNumberController): (${error})`);
+    logger.error(
+      `Get the Family Memebers (getParticularUserMobileNumberController): (${error})`
+    );
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-
-}
+};
 
 const linkFamilyMemberController = async (req, res) => {
   try {
@@ -433,36 +436,49 @@ const linkFamilyMemberController = async (req, res) => {
     const createdAt = CurrentTime();
     const createdBy = req.userData.userid;
 
-    const result = await linkFamilyMemberModel(refUserId, headMobileNumber, createdAt, createdBy, relationName, password);
+    const result = await linkFamilyMemberModel(
+      refUserId,
+      headMobileNumber,
+      createdAt,
+      createdBy,
+      relationName,
+      password
+    );
 
     return res.status(200).json(encrypt(result, true));
-
   } catch (error) {
-    logger.error(`Link Family Memebers (linkFamilyMemberController): (${error})`);
+    logger.error(
+      `Link Family Memebers (linkFamilyMemberController): (${error})`
+    );
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-
-}
+};
 
 const unlinkFamilyMemberController = async (req, res) => {
   try {
-
     const { refRelationId, password, headMobileNumber } = req.body;
 
     const updatedAt = CurrentTime();
     const updatedBy = req.userData.userid;
 
-    const result = await unlinkFamilyMemberModel(refRelationId, updatedAt, updatedBy, password, headMobileNumber);
+    const result = await unlinkFamilyMemberModel(
+      refRelationId,
+      updatedAt,
+      updatedBy,
+      password,
+      headMobileNumber
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
-    logger.error(`Get the Family Memebers (getFamilyMembersController): (${error})`);
+    logger.error(
+      `Get the Family Memebers (getFamilyMembersController): (${error})`
+    );
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-}
-
+};
 
 const getDashbardController = async (req, res) => {
   try {
@@ -476,7 +492,7 @@ const getDashbardController = async (req, res) => {
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-}
+};
 
 const getLanguageController = async (req, res) => {
   try {
@@ -487,7 +503,7 @@ const getLanguageController = async (req, res) => {
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-}
+};
 
 const getVersionController = async (req, res) => {
   try {
@@ -498,7 +514,7 @@ const getVersionController = async (req, res) => {
     console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went wrong" + error });
   }
-}
+};
 
 module.exports = {
   UserLoginController,
@@ -519,5 +535,5 @@ module.exports = {
   unlinkFamilyMemberController,
   getDashbardController,
   getLanguageController,
-  getVersionController
+  getVersionController,
 };

@@ -224,7 +224,7 @@ export const getMainCategoryModels = async (
     ]);
 
     if (checkPatient.rows.length > 0) {
-      const result = await connection.query(getMainCategoryQuery,[refLanCode]);
+      const result = await connection.query(getMainCategoryQuery, [refLanCode]);
 
       return {
         status: true,
@@ -352,7 +352,8 @@ export const getCategoryModels = async (
       // PTcreatedDate,
 
       const UserScoreVerify = await connection.query(getUserScoreVerifyQuery, [
-        element.refQCategoryId, refLanCode
+        element.refQCategoryId,
+        refLanCode,
       ]);
 
       resultArray.push({
@@ -367,16 +368,18 @@ export const getCategoryModels = async (
     }
 
     const isHigherQuestion = await connection.query(getAssessmentNoQuery, [
-      patientId, ['9', '10', '11', '43']
+      patientId,
+      ["9", "10", "11", "43"],
     ]);
 
     const isLowerQuestion = await connection.query(getAssessmentNoQuery, [
-      patientId, ['8', '12', '13', '51']
+      patientId,
+      ["8", "12", "13", "51"],
     ]);
 
     const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
       createdAt,
-      patientId
+      patientId,
     ]);
 
     return {
@@ -384,7 +387,7 @@ export const getCategoryModels = async (
       data: resultArray,
       isHigherQuestion: isHigherQuestion.rows,
       isLowerQuestion: isLowerQuestion.rows,
-      checkSubscriptions: checkSubscriptions.rows
+      checkSubscriptions: checkSubscriptions.rows,
     };
   } catch (error) {
     console.error("Something went Wrong", error);
@@ -402,12 +405,12 @@ export const getQuestionsModels = async (
 ) => {
   const connection = await DB();
 
-
   console.log(refLanCode);
 
   try {
     const getQuestion = await connection.query(getFirstQuestionQuery, [
-      questionId, refLanCode
+      questionId,
+      refLanCode,
     ]);
 
     const mappedResult = await Promise.all(
@@ -416,7 +419,10 @@ export const getQuestionsModels = async (
         const optionsValue = question.refOptions.split(",").map(Number);
 
         // Fetch options for the current question
-        const optionResult = await connection.query(getOptions, [optionsValue, refLanCode]);
+        const optionResult = await connection.query(getOptions, [
+          optionsValue,
+          refLanCode,
+        ]);
 
         return {
           questionId: question.refQId,
@@ -487,14 +493,17 @@ export const postAnswersModels = async (
 
     const getQuestion = await connection.query(getFirstQuestionQuery, [
       categoryId,
-      refLanCode
+      refLanCode,
     ]);
 
     const mappedResult: any = await Promise.all(
       getQuestion.rows.map(async (question) => {
         const optionsValue = question.refOptions.split(",").map(Number);
 
-        const optionResult = await connection.query(getOptions, [optionsValue, refLanCode]);
+        const optionResult = await connection.query(getOptions, [
+          optionsValue,
+          refLanCode,
+        ]);
 
         return optionResult.rows;
       })
@@ -1996,4 +2005,4 @@ export const sendReportMailModel = async (
   }
 };
 
-const htmlbody = () => { };
+const htmlbody = () => {};

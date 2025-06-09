@@ -23,7 +23,7 @@ const {
   unlinkFamilyMemberController,
   getDashbardController,
   getLanguageController,
-  getVersionController
+  getVersionController,
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -103,22 +103,10 @@ CommercialRoutes.post(
   unlinkFamilyMemberController
 );
 
+CommercialRoutes.get("/getdashboard", verifyToken, getDashbardController);
 
-CommercialRoutes.get(
-  "/getdashboard",
-  verifyToken,
-  getDashbardController
-);
+CommercialRoutes.get("/getLanguage", getLanguageController);
 
-CommercialRoutes.get(
-  "/getLanguage",
-  getLanguageController
-)
-
-CommercialRoutes.get(
-  "/getVersion",
-  getVersionController
-)
-
+CommercialRoutes.get("/getVersion", getVersionController);
 
 export default CommercialRoutes;
