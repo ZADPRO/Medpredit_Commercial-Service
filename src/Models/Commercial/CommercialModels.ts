@@ -586,7 +586,7 @@ export const purchasePackageModel = async (
     logger.info("packageId", txnkey);
 
     const key_id = process.env.VITE_RZR_API_KEY;
-    logger.info("key_id", key_id);
+    logger.info(`key_id ${key_id}`);
     const key_secret = process.env.VITE_RZR_SKT_KEY;
     logger.info("key_secret", key_secret);
 

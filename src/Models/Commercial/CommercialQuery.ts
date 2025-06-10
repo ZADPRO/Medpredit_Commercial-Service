@@ -138,6 +138,8 @@ SELECT
 FROM
   public."refPaymentTransaction" rpayt
   JOIN public."refPackages" rp ON rp."refPkgId" = rpayt."refPkgId"
+  JOIN public."Users" u ON u."refUserId" = rpayt."refUserId"
+  JOIN public."refCommunication" rc ON rc."refUserId" = rpayt."refUserId"
 WHERE
   rpayt."refUserId" = $1;
 `;

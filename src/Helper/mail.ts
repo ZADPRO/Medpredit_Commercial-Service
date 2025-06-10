@@ -27,8 +27,10 @@ export const sendEmail = async (mailOptions: MailOptions): Promise<boolean> => {
       from: process.env.EMAIL_USER,
       ...mailOptions,
     });
+    logger.info("Mail sent");
     return true; // success
   } catch (error) {
+    logger.error("Error in sending email");
     console.error("Error sending email:", error);
     return false; // failure
   }
