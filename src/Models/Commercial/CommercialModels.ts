@@ -704,6 +704,11 @@ export const purchasePackageModel = async (
 
           try {
             await sendEmail(sendEmailCont);
+            console.log(
+              "sendEmailCont",
+              process.env.EMAIL_USER,
+              process.env.EMAIL_PASS
+            );
           } catch (error) {
             console.error("Failed to send email:", error);
           }
@@ -1321,5 +1326,170 @@ export const getVersionModel = async () => {
     throw error;
   } finally {
     await connection.end();
+  }
+};
+
+export const validatePasswordModel = async (email, inputOtp, userId) => {
+  console.log("userId", userId);
+  console.log("inputOtp", inputOtp);
+  console.log("email", email);
+  const connection = await DB();
+  try {
+    const result = await connection.query(
+      `
+      SELECT 
+        "tempOTPNumber", 
+        "createdAt" 
+      FROM public."tempOTP" 
+      WHERE "tempUserId" = $1 
+      ORDER BY "createdAt" DESC
+      LIMIT 1
+      `,
+      [userId]
+    );
+
+    console.log("result", result);
+    const rows = result.rows;
+    console.log("rows", rows);
+
+    if (!rows || rows.length === 0) {
+      return {
+        status: false,
+        message: "No OTP found for the given email",
+      };
+    }
+
+    const { tempOTPNumber, createdAt } = rows[0];
+    console.log("tempOTPNumber", tempOTPNumber);
+
+    const createdTime = new Date(createdAt);
+    console.log("createdTime", createdTime);
+    const now = new Date();
+    const expiryTime = new Date(createdTime.getTime() + 5 * 60 * 1000);
+
+    if (now > expiryTime) {
+      return {
+        status: false,
+        message: "OTP has expired",
+      };
+    }
+
+    if (inputOtp !== tempOTPNumber) {
+      return {
+        status: false,
+        message: "Invalid OTP",
+      };
+    }
+
+    return {
+      status: true,
+      message: "OTP validated successfully",
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const GenerateOTPMail = async (email, otp) => {
+  const connection = await DB();
+
+  const success = await sendEmail({
+    to: email,
+    subject: "OTP for Password Reset",
+    text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+    // Optionally use HTML format
+    // html: `<b>Your OTP is:</b> <h3>${otp}</h3>`
+  });
+  if (!success) {
+    return {
+      status: false,
+      token: process.env.ACCESS_TOKEN,
+      message: "Password OTP sent got error",
+    };
+  }
+
+  const userIdQuery = `
+  SELECT rcu."refUserId" FROM public."refCommunication" rcu WHERE
+  rcu."refUserEmail" = $1`;
+
+  const userIdResult = await connection.query(userIdQuery, [email]);
+  console.log("userIdResult", userIdResult.rows[0]);
+
+  const query = `
+    INSERT INTO public."tempOTP" (
+      "tempUserId", 
+      "tempOTPNumber", 
+      "tempOTPExpiresTime", 
+      "createdAt", 
+      "createdBy"
+    )
+    VALUES (
+      $1, 
+      $2, 
+      to_char(NOW() + INTERVAL '5 minutes', 'YYYY-MM-DD HH24:MI:SS'), 
+      to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 
+      $3
+    )
+  `;
+
+  const result = await connection.query(query, [
+    userIdResult.rows[0].refUserId,
+    otp,
+    email,
+  ]);
+
+  console.log("result", result);
+  // Store OTP logic here (in memory, Redis, etc.)
+  return {
+    status: true,
+    userId: userIdResult.rows[0],
+    token: process.env.ACCESS_TOKEN,
+    message: "Password OTP sent successfully",
+  };
+};
+
+export const ForgotPasswordModel = async (email, newPassword) => {
+  const connection = await DB();
+
+  try {
+    const query = `
+      SELECT rud."refUserId"
+      FROM public."refCommunication" rcn
+      JOIN public."refUserDomain" rud ON rcn."refUserId" = rud."refUserId"
+      WHERE rcn."refUserEmail" = $1
+    `;
+
+    const result = await connection.query(query, [email]);
+
+    if (result.rowCount === 0) {
+      return { status: false, message: "User not found" };
+    }
+
+    const userId = result.rows[0].refUserId;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Save both plaintext and hashed password (NOT RECOMMENDED in production)
+    const updateQuery = `
+      UPDATE public."refUserDomain"
+      SET "refUserPassword" = $1,
+          "refUserHashedpass" = $2
+      WHERE "refUserId" = $3
+    `;
+
+    await connection.query(updateQuery, [newPassword, hashedPassword, userId]);
+
+    return {
+      status: true,
+      message: "Password updated successfully",
+    };
+  } catch (error) {
+    console.error("ForgotPasswordModel error:", error);
+    throw error;
+  } finally {
+    await connection.end(); // If not using connection pool
   }
 };

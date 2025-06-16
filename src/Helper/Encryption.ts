@@ -10,6 +10,8 @@ function encrypt(
     return { text }; // Return the original input if encryption is not enabled
   }
 
+  console.log(" line ------- 14");
+
   const algorithm = "aes-256-cbc";
   const key = Buffer.from(process.env.ENCRYPTION_KEY as string, "hex");
   const iv = crypto.randomBytes(16);
@@ -23,7 +25,7 @@ function encrypt(
   const cipher = crypto.createCipheriv(algorithm, key, iv);
   let encrypted = cipher.update(textToEncrypt, "utf-8", "hex");
   encrypted += cipher.final("hex");
-
+  console.log("line -------- 29");
   return [iv.toString("hex"), encrypted];
 }
 

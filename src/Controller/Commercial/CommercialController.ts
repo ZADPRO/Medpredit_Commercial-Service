@@ -20,6 +20,9 @@ import {
   UserLoginModel,
   UserSignUpModel,
   userUpdateModel,
+  ForgotPasswordModel,
+  validatePasswordModel,
+  GenerateOTPMail,
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
@@ -516,6 +519,75 @@ const getVersionController = async (req, res) => {
   }
 };
 
+const validatePasswordController = async (req, res) => {
+  try {
+    const { email, otp, userId } = req.body;
+
+    if (!email || !otp || !userId) {
+      return res
+        .status(400)
+        .json({ error: "Email and new password are required" });
+    }
+
+    const result = await validatePasswordModel(email, otp, userId);
+
+    if (!result.status) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    logger.error(`Forgot Password Routes: (${error.message})`);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+const forgotPasswordRoutes = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Email and new password are required" });
+    }
+
+    const result = await ForgotPasswordModel(email, newPassword);
+
+    if (!result.status) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    logger.error(`Forgot Password Routes: (${error.message})`);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+const otpMap = new Map(); // Temp in-memory store (ideally use Redis for production)
+
+export const getOTPForMail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+    otpMap.set(email, { otp, createdAt: Date.now() });
+
+    const result = await GenerateOTPMail(email, otp); // Send email with OTP
+    console.log("result line -------- 558 \n", result);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Error generating OTP:", error);
+    return res.status(500).json({ error: "Failed to send OTP" });
+  }
+};
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -536,4 +608,7 @@ module.exports = {
   getDashbardController,
   getLanguageController,
   getVersionController,
+  forgotPasswordRoutes,
+  getOTPForMail,
+  validatePasswordController,
 };

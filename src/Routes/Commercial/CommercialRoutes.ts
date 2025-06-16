@@ -24,6 +24,9 @@ const {
   getDashbardController,
   getLanguageController,
   getVersionController,
+  validatePasswordController,
+  forgotPasswordRoutes,
+  getOTPForMail,
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -108,5 +111,11 @@ CommercialRoutes.get("/getdashboard", verifyToken, getDashbardController);
 CommercialRoutes.get("/getLanguage", getLanguageController);
 
 CommercialRoutes.get("/getVersion", getVersionController);
+
+CommercialRoutes.post("/generateOTPForPassword", getOTPForMail);
+
+CommercialRoutes.post("/validateOTPForPassword", validatePasswordController);
+
+CommercialRoutes.post("/forgotPassword", forgotPasswordRoutes);
 
 export default CommercialRoutes;
