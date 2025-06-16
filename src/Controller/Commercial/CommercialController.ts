@@ -23,6 +23,7 @@ import {
   ForgotPasswordModel,
   validatePasswordModel,
   GenerateOTPMail,
+  UpdatePasswordModel,
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
@@ -588,6 +589,22 @@ export const getOTPForMail = async (req, res) => {
   }
 };
 
+export const NewPasswordEntryController = async (req, res) => {
+  const { userId, password, email } = req.body;
+  if (!email || !userId || !password) {
+    return res.status(400).json({ error: "Wrong Payload" });
+  }
+
+  try {
+    const result = await UpdatePasswordModel(userId, password, email); // Send email with OTP
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ error: "Failed to update password" });
+  }
+};
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -611,4 +628,5 @@ module.exports = {
   forgotPasswordRoutes,
   getOTPForMail,
   validatePasswordController,
+  NewPasswordEntryController,
 };

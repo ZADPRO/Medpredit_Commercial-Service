@@ -26,6 +26,7 @@ const {
   getVersionController,
   validatePasswordController,
   forgotPasswordRoutes,
+  NewPasswordEntryController,
   getOTPForMail,
 } = require("../../Controller/Commercial/CommercialController");
 
@@ -117,5 +118,7 @@ CommercialRoutes.post("/generateOTPForPassword", getOTPForMail);
 CommercialRoutes.post("/validateOTPForPassword", validatePasswordController);
 
 CommercialRoutes.post("/forgotPassword", forgotPasswordRoutes);
+
+CommercialRoutes.post("/enterNewPassword", NewPasswordEntryController);
 
 export default CommercialRoutes;

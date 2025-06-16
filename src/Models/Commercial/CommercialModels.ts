@@ -1493,3 +1493,37 @@ export const ForgotPasswordModel = async (email, newPassword) => {
     await connection.end(); // If not using connection pool
   }
 };
+
+export const UpdatePasswordModel = async (userId, password, email) => {
+  const connection = await DB();
+  try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const updateQuery = `
+      UPDATE public."refUserDomain"
+      SET "refUserPassword" = $1,
+          "refUserHashedpass" = $2,
+          "updatedAt" = CURRENT_TIMESTAMP,
+          "updatedBy" = 'system'
+      WHERE "refUserId" = $3
+    `;
+
+    const result = await connection.query(updateQuery, [
+      password,
+      hashedPassword,
+      userId,
+    ]);
+
+    console.log("result", result);
+    return {
+      status: true,
+      message: "Password updated successfully",
+    };
+  } catch (error) {
+    console.error("ForgotPasswordModel error:", error);
+    throw error;
+  } finally {
+    await connection.end(); // If not using connection pool
+  }
+};
