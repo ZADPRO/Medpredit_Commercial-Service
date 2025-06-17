@@ -25,12 +25,16 @@ import {
   GenerateOTPMail,
   UpdatePasswordModel,
   GetMedicalRecordsByUserModel,
+  getDocumentPathById,
   UploadMedicalRecordsModel,
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const logger = require("../../Helper/Logger");
+
+import path from "path";
+import fs from "fs";
 
 const UserLoginController = async (req, res) => {
   try {
@@ -661,6 +665,47 @@ export const listMedicalRecordsController = async (req, res) => {
   }
 };
 
+export const downloadMedicalRecord = async (req, res) => {
+  try {
+    const { refDocId } = req.body;
+
+    if (!refDocId) {
+      return res.status(400).json({ message: "refDocId is required" });
+    }
+
+    const record = await getDocumentPathById(refDocId);
+    console.log("record", record);
+
+    if (!record || !record.refDocPath) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const absolutePath = path.resolve(
+      "src",
+      "assets",
+      "medicalRecords",
+      path.basename(record.refDocPath)
+    );
+
+    console.log("absolutePath", absolutePath);
+    if (!fs.existsSync(absolutePath)) {
+      return res.status(404).json({ message: "File not found on server" });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${path.basename(record.refDocPath)}"`
+    );
+
+    fs.createReadStream(absolutePath).pipe(res);
+    console.log("absolutePath", absolutePath);
+  } catch (error) {
+    console.error("Error downloading record:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -687,4 +732,5 @@ module.exports = {
   NewPasswordEntryController,
   MedicalRecordsController,
   listMedicalRecordsController,
+  downloadMedicalRecord,
 };

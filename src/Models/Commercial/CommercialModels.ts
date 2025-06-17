@@ -1609,3 +1609,16 @@ export const GetMedicalRecordsByUserModel = async (userId) => {
     await connection.end();
   }
 };
+
+export const getDocumentPathById = async (refDocId) => {
+  const connection = await DB();
+
+  try {
+    const query = `SELECT "refDocPath" FROM "medicalRecords" WHERE "refDocId" = $1`;
+    const result = await connection.query(query, [refDocId]);
+    console.log("result", result.rows[0]);
+    return result.rows[0] || null;
+  } finally {
+    await connection.end();
+  }
+};

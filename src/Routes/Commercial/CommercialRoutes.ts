@@ -32,6 +32,7 @@ const {
   forgotPasswordRoutes,
   NewPasswordEntryController,
   getOTPForMail,
+  downloadMedicalRecord,
   MedicalRecordsController,
   listMedicalRecordsController,
 } = require("../../Controller/Commercial/CommercialController");
@@ -135,7 +136,7 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
+    const uniqueName = `${Date.now()}.pdf`;
     cb(null, uniqueName);
   },
 });
@@ -152,5 +153,7 @@ CommercialRoutes.get(
   "/medicalRecordsDetails/:userId",
   listMedicalRecordsController
 );
+
+CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
 
 export default CommercialRoutes;
