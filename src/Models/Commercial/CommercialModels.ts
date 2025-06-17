@@ -55,6 +55,8 @@ import {
 import { sendEmail } from "../../Helper/mail";
 import axios from "axios";
 
+import moment from "moment";
+
 const DB = require("../../Helper/DBConncetion");
 const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
@@ -1525,5 +1527,85 @@ export const UpdatePasswordModel = async (userId, password, email) => {
     throw error;
   } finally {
     await connection.end(); // If not using connection pool
+  }
+};
+
+export const UploadMedicalRecordsModel = async (data) => {
+  const {
+    userId,
+    filePath,
+    date,
+    category,
+    subCategory,
+    centerName,
+    notes,
+    docName,
+  } = data;
+
+  const connection = await DB();
+  const now = moment().format("YYYY-MM-DD HH:mm:ss");
+
+  try {
+    const query = `
+      INSERT INTO "medicalRecords" 
+        ("refUserId", "refDocPath", "refDateOfDoc", "refCategory", 
+         "refSubCategory", "refMedicalCenterName", "refAdditionalNotes", 
+         "refCreatedAt", "refCreatedBy", "refUpdatedAt", "refUpdatedBy", "refDocName")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $1, $8, $1, $9)
+      RETURNING "refDocId"
+    `;
+
+    const values = [
+      userId,
+      filePath,
+      date,
+      category,
+      subCategory,
+      centerName,
+      notes,
+      now,
+      docName,
+    ];
+
+    const result = await connection.query(query, values);
+
+    return {
+      status: true,
+      message: "Medical record uploaded successfully.",
+      docId: result.rows[0].refDocId,
+    };
+  } catch (error) {
+    console.error("UploadMedicalRecordsModel error:", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const GetMedicalRecordsByUserModel = async (userId) => {
+  const connection = await DB();
+  try {
+    const query = `
+      SELECT 
+        "refDocId",
+        "refDocName",
+        "refDocPath",
+        "refDateOfDoc",
+        "refCategory",
+        "refSubCategory",
+        "refMedicalCenterName",
+        "refAdditionalNotes",
+        "refCreatedAt"
+      FROM "medicalRecords"
+      WHERE "refUserId" = $1
+      ORDER BY "refCreatedAt" DESC
+    `;
+    const result = await connection.query(query, [userId]);
+    return result.rows;
+  } catch (error) {
+    console.error("GetMedicalRecordsByUserModel error:", error);
+    throw error;
+  } finally {
+    await connection.end();
   }
 };

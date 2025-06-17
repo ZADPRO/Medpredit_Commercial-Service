@@ -1,5 +1,9 @@
 import express from "express";
 
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
 const {
   verifyToken,
 } = require("../../Controller/Authentication/AuthenticationControllers");
@@ -28,6 +32,8 @@ const {
   forgotPasswordRoutes,
   NewPasswordEntryController,
   getOTPForMail,
+  MedicalRecordsController,
+  listMedicalRecordsController,
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -120,5 +126,31 @@ CommercialRoutes.post("/validateOTPForPassword", validatePasswordController);
 CommercialRoutes.post("/forgotPassword", forgotPasswordRoutes);
 
 CommercialRoutes.post("/enterNewPassword", NewPasswordEntryController);
+
+// Create the storage location and filename logic
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = "src/assets/medicalRecords";
+    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
+
+CommercialRoutes.post(
+  "/medicalRecordsUpload",
+  upload.single("pdf"),
+  MedicalRecordsController
+);
+
+CommercialRoutes.get(
+  "/medicalRecordsDetails/:userId",
+  listMedicalRecordsController
+);
 
 export default CommercialRoutes;

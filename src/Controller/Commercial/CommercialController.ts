@@ -24,6 +24,8 @@ import {
   validatePasswordModel,
   GenerateOTPMail,
   UpdatePasswordModel,
+  GetMedicalRecordsByUserModel,
+  UploadMedicalRecordsModel,
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
@@ -605,6 +607,60 @@ export const NewPasswordEntryController = async (req, res) => {
   }
 };
 
+export const MedicalRecordsController = async (req, res) => {
+  try {
+    const {
+      docName,
+      date,
+      category,
+      subCategory,
+      notes,
+      centerName,
+      userId, // This should be passed from frontend via FormData
+    } = req.body;
+
+    const filePath = req.file ? req.file.path.replace("src/", "") : null;
+
+    const record = {
+      userId,
+      filePath,
+      date,
+      category,
+      subCategory,
+      centerName,
+      notes,
+      docName,
+    };
+
+    const result = await UploadMedicalRecordsModel(record);
+
+    res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("MedicalRecordsController error:", error);
+    res.status(500).json({ status: false, message: "Server error" });
+  }
+};
+
+export const listMedicalRecordsController = async (req, res) => {
+  console.log("req", req);
+  const { userId } = req.params;
+  console.log("userId", userId);
+
+  try {
+    const result = await GetMedicalRecordsByUserModel(userId);
+    return res.status(200).json({
+      status: true,
+      records: result,
+    });
+  } catch (error) {
+    console.error("GetMedicalRecordsByUser error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Error fetching medical records",
+    });
+  }
+};
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
@@ -629,4 +685,6 @@ module.exports = {
   getOTPForMail,
   validatePasswordController,
   NewPasswordEntryController,
+  MedicalRecordsController,
+  listMedicalRecordsController,
 };
