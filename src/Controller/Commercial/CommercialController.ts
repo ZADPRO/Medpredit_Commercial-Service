@@ -623,7 +623,9 @@ export const MedicalRecordsController = async (req, res) => {
       userId, // This should be passed from frontend via FormData
     } = req.body;
 
-    const filePath = req.file ? req.file.path.replace("src/", "") : null;
+    const filePath = req.file
+      ? path.join("assets", "medicalRecords", path.basename(req.file.path))
+      : null;
 
     const record = {
       userId,
@@ -680,12 +682,7 @@ export const downloadMedicalRecord = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    const absolutePath = path.resolve(
-      "src",
-      "assets",
-      "medicalRecords",
-      path.basename(record.refDocPath)
-    );
+    const absolutePath = path.resolve(record.refDocPath);
 
     console.log("absolutePath", absolutePath);
     if (!fs.existsSync(absolutePath)) {

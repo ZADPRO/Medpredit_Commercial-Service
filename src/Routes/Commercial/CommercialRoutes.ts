@@ -131,7 +131,7 @@ CommercialRoutes.post("/enterNewPassword", NewPasswordEntryController);
 // Create the storage location and filename logic
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = "src/assets/medicalRecords";
+    const uploadPath = "assets/medicalRecords";
     fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
     cb(null, uploadPath);
   },
