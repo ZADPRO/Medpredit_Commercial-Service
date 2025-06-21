@@ -48,8 +48,9 @@ export const Tabacco = (answers: any) => {
     ? answers.find((element) => element.questionId === 69).answer
     : 0;
   const q13 = answers.find((element) => element.questionId === 70)
-    ? answers.find((element) => element.questionId === 70)
+    ? answers.find((element) => element.questionId === 70).answer
     : 0;
+
   const q14 = answers.find((element) => element.questionId === 73)
     ? answers.find((element) => element.questionId === 73).answer
     : 0;
@@ -183,8 +184,8 @@ export const Tabacco = (answers: any) => {
   if (q11 === 221) highrisksmokeless = "High Risk";
 
   let tempsmokelessuse = 0;
-  if (q13.answer) {
-    q13.answer.map((element) => {
+  if (q13) {
+    q13.map((element) => {
       tempsmokelessuse += parseInt(element.days);
     });
   }
@@ -203,8 +204,6 @@ export const Tabacco = (answers: any) => {
   } else if (parseFloat(q12) > 10.01) {
     durationofsmokeless = "Veteran";
   }
-
-  console.log(q12, durationofsmokeless);
 
   return [
     tobacco,

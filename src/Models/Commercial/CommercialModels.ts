@@ -831,13 +831,16 @@ export const purchasePackageModel = async (
 
         logger.info("id", id);
         const UserEmailQuery = await connection.query(EmailIDForPayment, [id]);
+        console.log("UserEmailQuery", UserEmailQuery);
         logger.info("UserEmailQuery else", UserEmailQuery.rows);
 
         const resultData = UserEmailQuery.rows;
+        console.log("resultData", resultData);
         logger.info("resultData", resultData);
 
         if (resultData.length > 0) {
           const refUserEmail = resultData[0].refUserEmail;
+          console.log("refUserEmail", refUserEmail);
           logger.info("refUserEmail", refUserEmail);
         } else {
           logger.info("No user found.");
