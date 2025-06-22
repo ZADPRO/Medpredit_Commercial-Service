@@ -15,7 +15,7 @@ export const uploadFileToMinio = async (req: Request, res: Response) => {
     await minioClient.putObject(BUCKET, file.originalname, file.buffer);
 
     // Construct the public (or retrievable) file URL
-    const filePath = `http://192.168.1.67:9000/${BUCKET}/${file.originalname}`;
+    const filePath = `http://192.168.1.112:9000/${BUCKET}/${file.originalname}`;
 
     // Log the path
     console.log("File uploaded to:", filePath);
