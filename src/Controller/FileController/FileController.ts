@@ -6,29 +6,33 @@ const BUCKET = process.env.MINIO_BUCKET || "zadroit-bucket";
 
 export const uploadFileToMinio = async (req: Request, res: Response) => {
   const file = req.file;
-  console.log("file", file);
-  logger.info("File", file);
-  if (!file) return res.status(400).send("No file uploaded");
+  const userId = req.body.userId || req.query.userId; // You can pass userId from either form-data field or query
+
+  logger.info("Incoming file", file);
+  if (!file || !userId) {
+    return res.status(400).json({ message: "File and userId are required" });
+  }
 
   try {
-    // Upload to MinIO
-    await minioClient.putObject(BUCKET, file.originalname, file.buffer);
+    const timestamp = Date.now();
+    const fileExt = file.originalname.split(".").pop();
+    const uniqueFileName = `${timestamp}.${fileExt}`;
 
-    // Construct the public (or retrievable) file URL
-    const filePath = `http://192.168.1.112:9000/${BUCKET}/${file.originalname}`;
+    const objectName = `medpredit_commercial/medical_documents/${userId}/${uniqueFileName}`;
 
-    // Log the path
-    console.log("File uploaded to:", filePath);
-    logger.info("file path", filePath);
+    // Upload file to MinIO
+    await minioClient.putObject(BUCKET, objectName, file.buffer);
 
-    // Return it in response too
+    const filePath = `http://192.168.1.112:9000/${BUCKET}/${objectName}`;
+
+    logger.info("File uploaded at path:", filePath);
+
     return res.status(200).json({
       message: "File uploaded successfully!",
       fileUrl: filePath,
     });
   } catch (err) {
-    console.error(err);
-    logger.error("err", err);
+    logger.error("Upload failed:", err);
     return res.status(500).json({ message: "Upload failed", error: err });
   }
 };
