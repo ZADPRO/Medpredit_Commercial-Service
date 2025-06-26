@@ -703,6 +703,7 @@ export const downloadMedicalRecord = async (req, res) => {
   }
 };
 
+
 module.exports = {
   UserLoginController,
   UserSignUpController,
