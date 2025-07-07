@@ -11,24 +11,20 @@ const {
 const {
   UserCountController,
   UserlistController,
-  CheckAPIController
+  CheckAPIController,
 } = require("../../Controller/admin/adminController");
 
 const AdminRoutes = express.Router();
 
-AdminRoutes.get("/userCount",
-    verifyToken,
- UserCountController);
+AdminRoutes.get("/userCount", verifyToken, UserCountController);
 
-AdminRoutes.post("/userList",
-    verifyToken,
- UserlistController
+AdminRoutes.post("/userList", verifyToken, UserlistController);
+console.log("Checking api routes");
+
+AdminRoutes.get(
+  "/CheckAPI",
+  // verifyToken,
+  CheckAPIController
 );
-
-AdminRoutes.get("/CheckAPI",
-    // verifyToken,
- CheckAPIController
-);
-
 
 export default AdminRoutes;

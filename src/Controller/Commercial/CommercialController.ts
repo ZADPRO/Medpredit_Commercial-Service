@@ -685,8 +685,6 @@ export const addMedicalRecordsController = async (req, res) => {
 //   }
 // };
 
-
-
 const MedicalRecordsController = async (req, res) => {
   try {
     const { fileName } = req.body;
@@ -779,7 +777,7 @@ export const checkSubscriptionController = async (req, res) => {
 
   try {
     const result = await checkSubscriptionModel(refUserId);
-    console.log('result', result);
+    console.log("result", result);
 
     // Check if result is empty
     if (!result || result.length === 0) {
