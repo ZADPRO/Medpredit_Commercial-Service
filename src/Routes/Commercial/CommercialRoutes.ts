@@ -36,6 +36,8 @@ const {
   downloadMedicalRecord,
   MedicalRecordsController,
   listMedicalRecordsController,
+  addMedicalRecordsController,
+  checkSubscriptionController,
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -61,7 +63,7 @@ CommercialRoutes.post(
 
 CommercialRoutes.post("/changeUserId", verifyToken, changeUserIdController);
 
-CommercialRoutes.get(
+CommercialRoutes.post(
   "/getAllValidPackage",
   verifyToken,
   getAllValidPackageController
@@ -121,6 +123,12 @@ CommercialRoutes.get("/getLanguage", getLanguageController);
 
 CommercialRoutes.get("/getVersion", getVersionController);
 
+CommercialRoutes.get(
+  "/checkSubscription",
+  verifyToken,
+  checkSubscriptionController
+);
+
 CommercialRoutes.post("/generateOTPForPassword", getOTPForMail);
 
 CommercialRoutes.post("/validateOTPForPassword", validatePasswordController);
@@ -130,25 +138,29 @@ CommercialRoutes.post("/forgotPassword", forgotPasswordRoutes);
 CommercialRoutes.post("/enterNewPassword", NewPasswordEntryController);
 
 // Create the storage location and filename logic
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = "assets/medicalRecords";
-    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = `${Date.now()}.pdf`;
-    cb(null, uniqueName);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const uploadPath = "assets/medicalRecords";
+//     fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
+//     cb(null, uploadPath);
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueName = `${Date.now()}.pdf`;
+//     cb(null, uniqueName);
+//   },
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
-CommercialRoutes.post(
-  "/medicalRecordsUpload",
-  upload.single("pdf"),
-  MedicalRecordsController
-);
+// CommercialRoutes.post(
+//   "/medicalRecordsUpload",
+//   upload.single("pdf"),
+//   MedicalRecordsController
+// );
+
+CommercialRoutes.post("/medicalRecordsUpload", MedicalRecordsController);
+
+CommercialRoutes.post("/addmedicalRecords", addMedicalRecordsController);
 
 CommercialRoutes.get(
   "/medicalRecordsDetails/:userId",

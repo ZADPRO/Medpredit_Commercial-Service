@@ -3,6 +3,7 @@ import {
   addDaysToDate,
   calculateDaysDifference,
   CurrentTime,
+  generateFileName,
   getDateOnly,
 } from "../../Helper/CurrentTime";
 import {
@@ -29,7 +30,9 @@ import {
   changeUserpostActiveQuery,
   checkParticularUserMobileQuery,
   checkSubscriptionsQuery,
+  checktheSubscriptionsQuery,
   checkUserRelationQuery,
+  checkUserSubscriptionQuery,
   communicationUpdateQuery,
   EmailIDForPayment,
   getAllValidPackageQuery,
@@ -56,6 +59,7 @@ import { sendEmail } from "../../Helper/mail";
 import axios from "axios";
 
 import moment from "moment";
+import { createUploadUrl } from "../../Helper/MinioClient/MinioClient";
 
 const DB = require("../../Helper/DBConncetion");
 const bcrypt = require("bcrypt");
@@ -389,18 +393,23 @@ export const changeUserIdModel = async (
 
 export const getAllValidPackageModel = async (
   currentDate: any,
-  refUserId: any
+  refUserId: any,
+  refLanCode: any
 ) => {
+  console.log("refUserId", refUserId);
+  console.log("refLanCode", refLanCode);
+  console.log("currentDate", currentDate);
   const connection = await DB();
   try {
     const result = await connection.query(getAllValidPackageQuery, [
       currentDate,
+      refLanCode,
     ]);
 
-    const checkSubscriptions = await connection.query(checkSubscriptionsQuery, [
-      currentDate,
-      refUserId,
-    ]);
+    const checkSubscriptions = await connection.query(
+      checktheSubscriptionsQuery,
+      [currentDate, refUserId, refLanCode]
+    );
 
     const getGST = await connection.query(getGSTQuery);
 
@@ -1533,10 +1542,91 @@ export const UpdatePasswordModel = async (userId, password, email) => {
   }
 };
 
-export const UploadMedicalRecordsModel = async (data) => {
+export const UploadMedicalRecordsModel = async (fileName: string) => {
+  const connection = await DB();
+
+  try {
+    // const filename = generateFileName();
+    // console.log("filename", filename);
+    // Generate signed URL for uploading and file view
+    // const fileName = `${filename}.${fileTypes[1]}`
+    console.log("fileName", fileName);
+    const filename = generateFileName();
+    console.log("filename", filename);
+
+    const { upLoadUrl, fileUrl } = await createUploadUrl(filename, 15); // expires in 15 mins
+
+    return {
+      status: true,
+      message: "Blog image upload URL generated successfully.",
+      uploadUrl: upLoadUrl,
+      fileUrl: fileUrl,
+      fileName: filename,
+    };
+  } catch (error) {
+    console.error("Blog image upload URL generation error:", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+// export const addMedicalRecordsModel = async (data) => {
+//   const {
+//     userId,
+//     filePath,
+//     date,
+//     category,
+//     subCategory,
+//     centerName,
+//     notes,
+//     docName,
+//   } = data;
+
+//   const connection = await DB();
+//   const now = moment().format("YYYY-MM-DD HH:mm:ss");
+
+//   try {
+//     const query = `
+//       INSERT INTO "medicalRecords"
+//         ("refUserId", "refDocPath", "refDateOfDoc", "refCategory",
+//          "refSubCategory", "refMedicalCenterName", "refAdditionalNotes",
+//          "refCreatedAt", "refCreatedBy", "refUpdatedAt", "refUpdatedBy", "refDocName")
+//       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $1, $8, $1, $9)
+//       RETURNING "refDocId"
+//     `;
+
+//     const values = [
+//       userId,
+//       filePath,
+//       date,
+//       category,
+//       subCategory,
+//       centerName,
+//       notes,
+//       now,
+//       docName,
+//     ];
+
+//     const result = await connection.query(query, values);
+
+//     return {
+//       status: true,
+//       message: "Medical record uploaded successfully.",
+//       docId: result.rows[0].refDocId,
+//     };
+//   } catch (error) {
+//     console.error("UploadMedicalRecordsModel error:", error);
+//     throw error;
+//   } finally {
+//     await connection.end();
+//   }
+// };
+
+export const addMedicalRecordsModel = async (data) => {
   const {
     userId,
-    filePath,
+    imagePaths, // Array of file paths (optional)
     date,
     category,
     subCategory,
@@ -1549,18 +1639,30 @@ export const UploadMedicalRecordsModel = async (data) => {
   const now = moment().format("YYYY-MM-DD HH:mm:ss");
 
   try {
-    const query = `
-      INSERT INTO "medicalRecords" 
-        ("refUserId", "refDocPath", "refDateOfDoc", "refCategory", 
-         "refSubCategory", "refMedicalCenterName", "refAdditionalNotes", 
-         "refCreatedAt", "refCreatedBy", "refUpdatedAt", "refUpdatedBy", "refDocName")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $1, $8, $1, $9)
-      RETURNING "refDocId"
+    await connection.query("BEGIN;");
+
+    // Step 1: Insert into medicalRecords table
+    const insertRecordQuery = `
+   INSERT INTO
+  public."medicalRecords" (
+    "refUserId",
+    "refDateOfDoc",
+    "refCategory",
+    "refSubCategory",
+    "refMedicalCenterName",
+    "refAdditionalNotes",
+    "refCreatedAt",
+    "refCreatedBy",
+    "refDocName"
+  )
+VALUES
+  ($1, $2, $3, $4, $5, $6, $7, $1, $8)
+RETURNING
+  "refDocId";
     `;
 
-    const values = [
+    const recordResult = await connection.query(insertRecordQuery, [
       userId,
-      filePath,
       date,
       category,
       subCategory,
@@ -1568,17 +1670,34 @@ export const UploadMedicalRecordsModel = async (data) => {
       notes,
       now,
       docName,
-    ];
+    ]);
 
-    const result = await connection.query(query, values);
+    const recordId = recordResult.rows[0]?.refDocId;
+
+    // Step 2: If images exist, insert into medicalRecordImages table
+    if (Array.isArray(imagePaths) && imagePaths.length > 0) {
+      const insertImagePromises = imagePaths.map((path, index) => {
+        const insertImageQuery = `
+         INSERT INTO
+  public."medicalRecordImages" ("refDocId", "imagePath", "sequenceNumber")
+VALUES
+  ($1, $2, $3);
+        `;
+        return connection.query(insertImageQuery, [recordId, path, index + 1]);
+      });
+
+      await Promise.all(insertImagePromises);
+    }
+
+    await connection.query("COMMIT;");
 
     return {
-      status: true,
-      message: "Medical record uploaded successfully.",
-      docId: result.rows[0].refDocId,
+      recordId,
+      totalImages: imagePaths?.length || 0,
     };
   } catch (error) {
-    console.error("UploadMedicalRecordsModel error:", error);
+    await connection.query("ROLLBACK;");
+    console.error("addMedicalRecordsModel error:", error);
     throw error;
   } finally {
     await connection.end();
@@ -1603,6 +1722,28 @@ export const GetMedicalRecordsByUserModel = async (userId) => {
       WHERE "refUserId" = $1
       ORDER BY "refCreatedAt" DESC
     `;
+
+    const withmedicalImages = `
+    
+    SELECT
+  md."refDocId",
+  md."refDocName",
+  md."refDocPath",
+  md."refDateOfDoc",
+  md."refCategory",
+  md."refSubCategory",
+  md."refMedicalCenterName",
+  md."refAdditionalNotes",
+  md."refCreatedAt",
+FROM
+  "medicalRecords" md
+  LEFT JOIN public."medicalRecordImages" mri ON CAST(mri."refDocId" AS INTEGER) = md."refDocId"
+WHERE
+  "refUserId" = $1
+ORDER BY
+  "refCreatedAt" DESC
+    `;
+
     const result = await connection.query(query, [userId]);
     return result.rows;
   } catch (error) {
@@ -1626,3 +1767,21 @@ export const getDocumentPathById = async (refDocId) => {
   }
 };
 
+export const checkSubscriptionModel = async (refUserId: any) => {
+  const connection = await DB();
+  try {
+    const checkSubscription = await connection.query(checkSubscriptionsQuery, [
+      CurrentTime(),
+      refUserId,
+    ]);
+    console.log("checkSubscription", checkSubscription.rows);
+    return checkSubscription.rows;
+  } catch (error) {
+    await connection.query("ROLLBACK;");
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.query("COMMIT;");
+    await connection.end();
+  }
+};

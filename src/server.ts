@@ -8,6 +8,8 @@ import AuthenticationRoutes from "./Routes/Authentication/AuthenticationRoutes";
 import BatchRoutes from "./Routes/Batch/BatchRoutes";
 import CommercialRoutes from "./Routes/Commercial/CommercialRoutes";
 import DoctorRoutes from "./Routes/Doctor/DoctorRoutes";
+import FileRoutes from "./Routes/MinIO/FileRoutes";
+import WebsiteRoutes from "./Routes/Website/WebsiteRoutes";
 const cors = require("cors");
 
 const app = express();
@@ -32,5 +34,7 @@ app.use("/api/BatchRoutes", BatchRoutes);
 
 startCronJobs();
 
+app.use("/api/WebsiteRoutes", WebsiteRoutes);
+app.use("/fileUpload", FileRoutes);
 
 app.listen(process.env.PORT);

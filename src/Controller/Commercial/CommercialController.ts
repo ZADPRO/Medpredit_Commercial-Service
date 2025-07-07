@@ -27,6 +27,8 @@ import {
   GetMedicalRecordsByUserModel,
   getDocumentPathById,
   UploadMedicalRecordsModel,
+  addMedicalRecordsModel,
+  checkSubscriptionModel,
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
@@ -253,10 +255,18 @@ const changeUserIdController = async (req, res) => {
 const getAllValidPackageController = async (req, res) => {
   try {
     const refUserId = req.userData.userid;
+    console.log("req.userData.userid", req.userData.userid);
+    console.log("refUserId", refUserId);
+    const { refLanCode } = req.body;
+    console.log("refLanCode", refLanCode);
 
     const currentTime = CurrentTime();
 
-    const result = await getAllValidPackageModel(currentTime, refUserId);
+    const result = await getAllValidPackageModel(
+      currentTime,
+      refUserId,
+      refLanCode
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -611,39 +621,87 @@ export const NewPasswordEntryController = async (req, res) => {
   }
 };
 
-export const MedicalRecordsController = async (req, res) => {
+export const addMedicalRecordsController = async (req, res) => {
   try {
-    const {
-      docName,
-      date,
-      category,
-      subCategory,
-      notes,
-      centerName,
-      userId, // This should be passed from frontend via FormData
-    } = req.body;
+    const response = await addMedicalRecordsModel(req.body);
 
-    const filePath = req.file
-      ? path.join("assets", "medicalRecords", path.basename(req.file.path))
-      : null;
+    const encryptedResponse = encrypt(
+      {
+        success: true,
+        message: "Medical record added successfully",
+        data: response,
+      },
+      true
+    );
 
-    const record = {
-      userId,
-      filePath,
-      date,
-      category,
-      subCategory,
-      centerName,
-      notes,
-      docName,
-    };
+    return res.status(200).json(encryptedResponse);
+  } catch (error) {
+    console.error("addMedicalRecordsController error:", error);
 
-    const result = await UploadMedicalRecordsModel(record);
+    const encryptedError = encrypt(
+      {
+        success: false,
+        message: "Failed to add medical record",
+      },
+      true
+    );
 
-    res.status(200).json(encrypt(result, true));
+    return res.status(500).json(encryptedError);
+  }
+};
+// export const addMedicalRecordsController = async (req, res) => {
+//   try {
+//     const {
+//       docName,
+//       date,
+//       category,
+//       subCategory,
+//       notes,
+//       centerName,
+//       userId, // This should be passed from frontend via FormData
+//     } = req.body;
+
+//     const filePath = req.file
+//       ? path.join("assets", "medicalRecords", path.basename(req.file.path))
+//       : null;
+
+//     const record = {
+//       userId,
+//       filePath,
+//       date,
+//       category,
+//       subCategory,
+//       centerName,
+//       notes,
+//       docName,
+//     };
+
+//     const result = await addMedicalRecordsModel(record);
+
+//     res.status(200).json(encrypt(result, true));
+//   } catch (error) {
+//     console.error("MedicalRecordsController error:", error);
+//     res.status(500).json({ status: false, message: "Server error" });
+//   }
+// };
+
+
+
+const MedicalRecordsController = async (req, res) => {
+  try {
+    const { fileName } = req.body;
+    console.log("req.body", req.body);
+    console.log("fileType", fileName);
+
+    const result = await UploadMedicalRecordsModel(fileName);
+
+    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
   } catch (error) {
     console.error("MedicalRecordsController error:", error);
-    res.status(500).json({ status: false, message: "Server error" });
+    return res.status(500).json({
+      status: false,
+      message: "MedicalRecordsController upload failed",
+    });
   }
 };
 
@@ -703,6 +761,57 @@ export const downloadMedicalRecord = async (req, res) => {
   }
 };
 
+export const checkSubscriptionController = async (req, res) => {
+  const refUserId = req.userData?.userid;
+
+  // Validate refUserId
+  if (!refUserId) {
+    return res.status(200).json(
+      encrypt(
+        {
+          status: false,
+          message: "No user ID provided.",
+        },
+        true
+      )
+    );
+  }
+
+  try {
+    const result = await checkSubscriptionModel(refUserId);
+    console.log('result', result);
+
+    // Check if result is empty
+    if (!result || result.length === 0) {
+      return res.status(200).json(
+        encrypt(
+          {
+            status: false,
+            message: "No subscription found.",
+          },
+          true
+        )
+      );
+    }
+
+    // Return subscription found
+    return res.status(200).json(
+      encrypt(
+        {
+          status: true,
+          hasSubscription: result,
+        },
+        true
+      )
+    );
+  } catch (error) {
+    console.error("checkSubscriptionController error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Error fetching subscription data.",
+    });
+  }
+};
 
 module.exports = {
   UserLoginController,
@@ -731,4 +840,6 @@ module.exports = {
   MedicalRecordsController,
   listMedicalRecordsController,
   downloadMedicalRecord,
+  addMedicalRecordsController,
+  checkSubscriptionController,
 };
