@@ -8,12 +8,13 @@ const logger = require("../../Helper/Logger");
 
 import path from "path";
 import fs from "fs";
-import { UserCountModel, userListModel } from "../../Models/admin/AdminModels";
+import { UserCountModel, userListModel } from "../../Models/Admin/AdminModels";
+// import { UserCountModel, userListModel } from "../../Controller/Admin/";
 
 export const UserCountController = async (req, res) => {
   console.log("req", req);
-//   const { userId } = req.params;
-//   console.log("userId", userId);
+  //   const { userId } = req.params;
+  //   console.log("userId", userId);
 
   try {
     const result = await UserCountModel();
@@ -64,12 +65,14 @@ const CheckAPIController = async (req, res) => {
     console.error("Something went wrong:", error);
 
     logger.error(`API check error: ${error.message}`);
-    return res.status(500).json({ error: "Something went wrong: " + error.message });
+    return res
+      .status(500)
+      .json({ error: "Something went wrong: " + error.message });
   }
 };
 
 module.exports = {
   UserCountController,
   UserlistController,
-  CheckAPIController
+  CheckAPIController,
 };
