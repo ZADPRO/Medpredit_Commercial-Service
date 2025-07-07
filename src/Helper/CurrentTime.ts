@@ -121,3 +121,10 @@ export function addDaysToDate(currentDate: string, daysToAdd: number): string {
   date.setDate(date.getDate() + daysToAdd);
   return date.toISOString().split("T")[0]; // Returns in YYYY-MM-DD format
 }
+
+
+export function generateFileName(): string {
+  const timestamp = Date.now(); // Milliseconds since Jan 1, 1970
+  const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+  return `${timestamp}${random}`; // e.g., "17132654798341234"
+}

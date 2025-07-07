@@ -70,7 +70,9 @@ FROM
 WHERE
   rp."refPkgStatus" IS TRUE
   AND CAST(rp."refPkgEndDate" AS DATE) >= CAST($1 AS DATE)
-  ORDER BY rp."refPkgValidMembers" ASC
+  AND rp."refLanCode" = $2
+ORDER BY
+  rp."refPkgValidMembers" ASC
 `;
 
 export const InsertTransactionHistoryQuery = `
@@ -156,7 +158,6 @@ FROM
   public."refRelation" rr
   JOIN public."Users" u ON u."refUserId" = CAST(rr."refUserId" AS INTEGER)
   JOIN public."refCommunication" rc ON rc."refUserId" = CAST(rr."refUserId" AS INTEGER)
-  -- Join to head user
   JOIN public."refCommunication" rc1 ON CAST(rc1."refUserMobileno" AS TEXT) = CAST(rr."refRHeadMobileNo" AS TEXT)
   JOIN public."Users" u1 ON u1."refUserId" = CAST(rc1."refUserId" AS INTEGER)
   AND u1."headStatus" = 'true'
@@ -167,6 +168,34 @@ FROM
 WHERE
   CAST(rs1."refSubEndDate" AS DATE) >= CAST($1 AS DATE)
   AND rr."refUserId" = $2
+  AND rr."refRStatus" = true
+  ORDER BY rpt1."refTransactionId" DESC
+  LIMIT 1;
+`;
+
+export const checktheSubscriptionsQuery = `
+SELECT
+  u."refUserId" AS "refUserId",
+  u1."refUserId" AS "refHeadUserId",
+  CAST(rs1."refSubEndDate" AS DATE) >= CAST($1 AS DATE) AS "isSubscriptionValid",
+  rs1.*,
+  rp1.*,
+  rpt1.*
+FROM
+  public."refRelation" rr
+  JOIN public."Users" u ON u."refUserId" = CAST(rr."refUserId" AS INTEGER)
+  JOIN public."refCommunication" rc ON rc."refUserId" = CAST(rr."refUserId" AS INTEGER)
+  JOIN public."refCommunication" rc1 ON CAST(rc1."refUserMobileno" AS TEXT) = CAST(rr."refRHeadMobileNo" AS TEXT)
+  JOIN public."Users" u1 ON u1."refUserId" = CAST(rc1."refUserId" AS INTEGER)
+  AND u1."headStatus" = 'true'
+  JOIN public."refRelation" rr1 ON rr1."refUserId" = CAST(u1."refUserId" AS INTEGER)
+  JOIN public."refSubscription" rs1 ON rs1."refUserId" = CAST(rc1."refUserId" AS INTEGER)
+  JOIN public."refPackages" rp1 ON rp1."refPkgId" = CAST(rs1."refPkgId" AS INTEGER)
+  JOIN public."refPaymentTransaction" rpt1 ON rpt1."refSubscriptionId" = rs1."refSubscriptionId"
+WHERE
+  CAST(rs1."refSubEndDate" AS DATE) >= CAST($1 AS DATE)
+  AND rr."refUserId" = $2
+  AND rp1."refLanCode" = $3
   AND rr."refRStatus" = true
   ORDER BY rpt1."refTransactionId" DESC
   LIMIT 1;
@@ -313,4 +342,10 @@ WHERE
   rpt."refUserId" = $1
 LIMIT
   1;
+`;
+
+
+export const checkUserSubscriptionQuery = `
+
+
 `;

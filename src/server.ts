@@ -6,6 +6,7 @@ import AuthenticationRoutes from "./Routes/Authentication/AuthenticationRoutes";
 import CommercialRoutes from "./Routes/Commercial/CommercialRoutes";
 import DoctorRoutes from "./Routes/Doctor/DoctorRoutes";
 import FileRoutes from "./Routes/MinIO/FileRoutes";
+import WebsiteRoutes from "./Routes/Website/WebsiteRoutes";
 const cors = require("cors");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api/v1", AuthenticationRoutes);
 app.use("/api/v1", AssistantRoutes);
 app.use("/api/v1", DoctorRoutes);
 app.use("/api/commercial", CommercialRoutes);
+app.use("/api/WebsiteRoutes", WebsiteRoutes);
 app.use("/fileUpload", FileRoutes);
 
 app.listen(process.env.PORT);
