@@ -1,8 +1,11 @@
 require("dotenv").config();
 
 const express = require("express");
+import { startCronJobs } from "./BatchProgram/dailyjobs";
+import AdminRoutes from "./Routes/admin/AdminRoutes";
 import AssistantRoutes from "./Routes/Assistant/AssistantRoutes";
 import AuthenticationRoutes from "./Routes/Authentication/AuthenticationRoutes";
+import BatchRoutes from "./Routes/Batch/BatchRoutes";
 import CommercialRoutes from "./Routes/Commercial/CommercialRoutes";
 import DoctorRoutes from "./Routes/Doctor/DoctorRoutes";
 import FileRoutes from "./Routes/MinIO/FileRoutes";
@@ -26,6 +29,11 @@ app.use("/api/v1", AuthenticationRoutes);
 app.use("/api/v1", AssistantRoutes);
 app.use("/api/v1", DoctorRoutes);
 app.use("/api/commercial", CommercialRoutes);
+app.use("/api/AdminRoutes", AdminRoutes);
+app.use("/api/BatchRoutes", BatchRoutes);
+
+startCronJobs();
+
 app.use("/api/WebsiteRoutes", WebsiteRoutes);
 app.use("/fileUpload", FileRoutes);
 

@@ -230,3 +230,264 @@ export const emailContForPackageUpgrade = (
     </html>
   `;
 };
+
+
+// export const sendWeeklyReport = (
+//   userData: { registration_date: string; user_count: number }[],
+//   subscriptionData: { refPkgName: string; packageTakenByUserCount: number }[]
+// ): string => {
+//   const today = new Date().toLocaleDateString("en-IN");
+
+//   // User registration table rows
+//   const userRows = userData
+//     .map(
+//       (row, index) => `
+//       <tr>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${index + 1}</td>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${row.registration_date}</td>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${row.user_count}</td>
+//       </tr>`
+//     )
+//     .join("");
+
+//   // Subscription packages table rows
+//   const packageRows = subscriptionData
+//     .map(
+//       (row, index) => `
+//       <tr>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${index + 1}</td>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${row.refPkgName}</td>
+//         <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${row.packageTakenByUserCount}</td>
+//       </tr>`
+//     )
+//     .join("");
+
+//   return `
+//   <!DOCTYPE html>
+//   <html>
+//   <head>
+//     <meta charset="UTF-8" />
+//     <title>Weekly Registration & Subscription Report</title>
+//     <style>
+//       body {
+//         font-family: Arial, sans-serif;
+//         background-color: #f7f7f7;
+//         margin: 0; padding: 20px;
+//       }
+//       .container {
+//         max-width: 700px;
+//         margin: auto;
+//         background: #fff;
+//         padding: 20px;
+//         border-radius: 8px;
+//         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+//       }
+//       h2 {
+//         color: #0478df;
+//       }
+//       table {
+//         width: 100%;
+//         border-collapse: collapse;
+//         margin-top: 20px;
+//       }
+//       th {
+//         background-color: #0478df;
+//         color: white;
+//         padding: 10px;
+//         text-align: center;
+//         border: 1px solid #ccc;
+//       }
+//       td {
+//         border: 1px solid #ccc;
+//         padding: 8px;
+//         text-align: center;
+//       }
+//       .footer {
+//         margin-top: 30px;
+//         text-align: center;
+//         color: #888;
+//         font-size: 12px;
+//       }
+//     </style>
+//   </head>
+//   <body>
+//     <div class="container">
+//       <h2>📊 Weekly User Registration Report</h2>
+//       <p><strong>Date:</strong> ${today}</p>
+//       <p><strong>Total Days Reported:</strong> ${userData.length}</p>
+//       <table>
+//         <thead>
+//           <tr>
+//             <th>#</th>
+//             <th>Registration Date</th>
+//             <th>User Count</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           ${userRows}
+//         </tbody>
+//       </table>
+
+//       <h2 style="margin-top: 40px;">📦 Package Subscription Summary</h2>
+//       <table>
+//         <thead>
+//           <tr>
+//             <th>#</th>
+//             <th>Package Name</th>
+//             <th>User Count</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           ${packageRows}
+//         </tbody>
+//       </table>
+
+//       <p style="margin-top: 30px;">Regards,<br/><strong>ZAdroit Team</strong></p>
+//     </div>
+
+//     <div class="footer">
+//       &copy; 2025 ZAdroit. All rights reserved.
+//     </div>
+//   </body>
+//   </html>
+//   `;
+// };
+
+type UserCount = {
+  registration_date: Date;
+  user_count: number | string;
+};
+
+type SubscriptionCount = {
+  refPkgName: string;
+  date: Date;
+  packageTakenByUserCount: number | string;
+};
+
+export const sendWeeklyReport = (
+  userCounts: UserCount[],
+  subscriptionCounts: SubscriptionCount[]
+): string => {
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Group subscriptions by date
+  const subsByDate: Record<string, SubscriptionCount[]> = {};
+  subscriptionCounts.forEach((sub) => {
+    const key = sub.date.toISOString().split("T")[0];
+    if (!subsByDate[key]) subsByDate[key] = [];
+    subsByDate[key].push(sub);
+  });
+
+  const rows = userCounts
+    .map((userCount, idx) => {
+      const dateKey = userCount.registration_date.toISOString().split("T")[0];
+      const subscriptions = subsByDate[dateKey] || [];
+
+      const subHtml = subscriptions
+        .map(
+          (sub) =>
+            `<li>${sub.refPkgName}: <strong>${sub.packageTakenByUserCount}</strong></li>`
+        )
+        .join("") || "<li>No subscriptions</li>";
+
+      return `
+      <tr>
+        <td style="border:1px solid #ccc; padding:8px; text-align:center;">${idx + 1}</td>
+        <td style="border:1px solid #ccc; padding:8px;">${formatDate(userCount.registration_date)}</td>
+        <td style="border:1px solid #ccc; padding:8px; text-align:center;">${userCount.user_count}</td>
+        <td style="border:1px solid #ccc; padding:8px;">
+          <ul style="margin:0; padding-left: 20px;">
+            ${subHtml}
+          </ul>
+        </td>
+      </tr>`;
+    })
+    .join("");
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Weekly User Registration & Subscription Report</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      h2 {
+        color: #0478df;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th {
+        background-color: #0478df;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ccc;
+      }
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        vertical-align: top;
+      }
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #888;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>📊 Weekly User Registration & Subscription Report</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>User Registrations</th>
+            <th>Subscriptions Breakdown</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+
+      <p style="margin-top: 30px;">Regards,<br/><strong>ZAdroit Team</strong></p>
+    </div>
+
+    <div class="footer">
+      &copy; 2025 ZAdroit. All rights reserved.
+    </div>
+  </body>
+  </html>
+  `;
+};
