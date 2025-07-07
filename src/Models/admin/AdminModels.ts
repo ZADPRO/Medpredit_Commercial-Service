@@ -8,7 +8,8 @@ import {
 
 import { sendEmail } from "../../Helper/mail";
 import axios from "axios";
-import { userlistQuery } from "./AdminQuery";
+import { userlistQuery } from "../Admin/AdminQuery";
+// import { userlistQuery } from "./AdminQuery";
 
 const DB = require("../../Helper/DBConncetion");
 const bcrypt = require("bcrypt");
