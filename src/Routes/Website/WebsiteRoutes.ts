@@ -31,8 +31,8 @@ const {
   updateViewStatusController,
   getBlogsController,
   getReleaseController,
-  updateReleaseController
-} = require("../../Controller/website/WebsiteController");
+  updateReleaseController,
+} = require("../../Controller/Website/WebsiteController");
 
 const WebsiteRoutes = express.Router();
 
@@ -70,7 +70,7 @@ WebsiteRoutes.get("/listBlogs", listBlogsController);
 
 WebsiteRoutes.post("/userReviews", userReviewsController);
 
-WebsiteRoutes.post("/updateViewStatus",updateViewStatusController);
+WebsiteRoutes.post("/updateViewStatus", updateViewStatusController);
 
 WebsiteRoutes.get("/listReviews", listReviewsController);
 
@@ -92,16 +92,14 @@ WebsiteRoutes.post("/updateBlog", updateBlogController);
 
 WebsiteRoutes.post("/updateReviews", updateReviewsController);
 
-WebsiteRoutes.post("/updateAchievement",  updateAchievementController);
+WebsiteRoutes.post("/updateAchievement", updateAchievementController);
 
-WebsiteRoutes.post("/updateRelease",   updateReleaseController);
+WebsiteRoutes.post("/updateRelease", updateReleaseController);
 
 WebsiteRoutes.post("/blogImage", blogImageController);
 
-WebsiteRoutes.post("/getBlogs",  getBlogsController);
+WebsiteRoutes.post("/getBlogs", getBlogsController);
 
-WebsiteRoutes.post("/getRelease",   getReleaseController);
-
-
+WebsiteRoutes.post("/getRelease", getReleaseController);
 
 export default WebsiteRoutes;

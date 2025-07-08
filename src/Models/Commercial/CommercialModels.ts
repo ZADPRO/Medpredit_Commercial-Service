@@ -3171,34 +3171,42 @@ export const UpdatePasswordModel = async (userId, password, email) => {
   }
 };
 
-export const UploadMedicalRecordsModel = async (fileName: string) => {
+export const UploadMedicalRecordsModel = async (numberOfFiles, filename) => {
   const connection = await DB();
 
   try {
-    // const filename = generateFileName();
-    // console.log("filename", filename);
-    // Generate signed URL for uploading and file view
-    // const fileName = `${filename}.${fileTypes[1]}`
-    console.log("fileName", fileName);
-    const filename = generateFileName();
-    console.log("filename", filename);
+    const uploadData = [];
 
-    const { upLoadUrl, fileUrl } = await createUploadUrl(filename, 15); // expires in 15 mins
+    for (let i = 0; i < numberOfFiles; i++) {
+      // const extention = filename[filename.length - 1] ?? "txt"; // fallback to txt if somehow missing
+
+      const filename = `medicalRecords/${generateFileName()}`; 
+
+      // const generatedfilename = `${refProductsName}/blogs/${generateFileName()}.${extention}`;
+
+      const { upLoadUrl, fileUrl } = await createUploadUrl(filename, 15);  // Assuming this generates signed URL & public URL
+
+      uploadData.push({
+        uploadUrl: upLoadUrl,
+        fileUrl: fileUrl,
+        fileName: filename,
+      });
+    }
 
     return {
       status: true,
-      message: "Blog image upload URL generated successfully.",
-      uploadUrl: upLoadUrl,
-      fileUrl: fileUrl,
-      fileName: filename,
+      message: "Multiple upload URLs generated successfully.",
+      files: uploadData,  // Array of files with URLs
+      totalFiles: uploadData.length
     };
   } catch (error) {
-    console.error("Blog image upload URL generation error:", error);
+    console.error("UploadMedicalRecordsModel error:", error);
     throw error;
   } finally {
     await connection.end();
   }
 };
+
 
 // export const addMedicalRecordsModel = async (data) => {
 //   const {

@@ -1386,51 +1386,19 @@ export const addMedicalRecordsController = async (req, res) => {
     return res.status(500).json(encryptedError);
   }
 };
-// export const addMedicalRecordsController = async (req, res) => {
-//   try {
-//     const {
-//       docName,
-//       date,
-//       category,
-//       subCategory,
-//       notes,
-//       centerName,
-//       userId, // This should be passed from frontend via FormData
-//     } = req.body;
-
-//     const filePath = req.file
-//       ? path.join("assets", "medicalRecords", path.basename(req.file.path))
-//       : null;
-
-//     const record = {
-//       userId,
-//       filePath,
-//       date,
-//       category,
-//       subCategory,
-//       centerName,
-//       notes,
-//       docName,
-//     };
-
-//     const result = await addMedicalRecordsModel(record);
-
-//     res.status(200).json(encrypt(result, true));
-//   } catch (error) {
-//     console.error("MedicalRecordsController error:", error);
-//     res.status(500).json({ status: false, message: "Server error" });
-//   }
-// };
 
 const MedicalRecordsController = async (req, res) => {
   try {
-    const { fileName } = req.body;
-    console.log("req.body", req.body);
-    console.log("fileType", fileName);
+    const { numberOfFiles, filename } = req.body;
+    console.log("Requested number of files:", numberOfFiles);
 
-    const result = await UploadMedicalRecordsModel(fileName);
+    if (!numberOfFiles || numberOfFiles <= 0) {
+      return res.status(400).json({ status: false, message: "Invalid number of files requested" });
+    }
 
-    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
+    const result = await UploadMedicalRecordsModel(numberOfFiles, filename);
+
+    return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("MedicalRecordsController error:", error);
     return res.status(500).json({
@@ -1439,6 +1407,7 @@ const MedicalRecordsController = async (req, res) => {
     });
   }
 };
+
 
 export const listMedicalRecordsController = async (req, res) => {
   console.log("req", req);
