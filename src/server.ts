@@ -30,11 +30,12 @@ app.use("/api/v1", AssistantRoutes);
 app.use("/api/v1", DoctorRoutes);
 app.use("/api/commercial", CommercialRoutes);
 // app.use("/api/AdminRoutes", AdminRoutes);
-app.use("/api/BatchRoutes", BatchRoutes);
+// app.use("/api/BatchRoutes", BatchRoutes);
+app.use("/api/WebsiteRoutes", WebsiteRoutes);
 
 startCronJobs();
 
-app.use("/api/WebsiteRoutes", WebsiteRoutes);
+// app.use("/api/WebsiteRoutes", WebsiteRoutes);
 app.use("/fileUpload", FileRoutes);
 
 app.listen(process.env.PORT);
