@@ -1729,6 +1729,7 @@ export const UserLoginModel = async (username: string, password: string) => {
             users: result.rows,
             isDetails: result.rows[0].refOccupationLvl === "-" ? true : false,
             token: accessToken,
+            env: process.env
           };
         } else
           return { status: false, message: "Invalid Username or Password" };
@@ -3550,6 +3551,7 @@ export const getReportChartModel = async (
         refQCategoryId,
         refLanCode,
       ]);
+      
       reportData = result.rows;
       console.log("Stress Report Data:", reportData);
     } else if (refQCategoryId === 12) {
@@ -3588,7 +3590,7 @@ export const getReportChartModel = async (
       reportData = [];
     }
 
-    return reportData;
+    return reportData ;
   } catch (error) {
     console.error("Something went wrong:", error);
     throw error;
@@ -3597,10 +3599,4 @@ export const getReportChartModel = async (
   }
 };
 
-export const getenvModel = async () => {
-  try {
-    return process.env;
-  } catch (error) {
-    throw error;
-  }
-};
+

@@ -31,7 +31,6 @@ import {
   checkSubscriptionModel,
   getPackageModel,
   getReportChartModel,
-  getenvModel
 } from "../../Models/Commercial/CommercialModels";
 import { AbstractKeyword } from "typescript";
 const jwt = require("jsonwebtoken");
@@ -867,21 +866,6 @@ const getReportChartController = async (req, res) => {
   }
 };
 
- const getenvController = async (req, res) => {
-  try {
-    const result = await getenvModel();
-    return res.status(200).json({
-      status: true,
-      records: result,
-    });
-  } catch (error) {
-    console.error("GetMedicalRecordsByUser error:", error);
-    return res.status(500).json({
-      status: false,
-      message: "Error fetching medical records",
-    });
-  }
-};
 
 module.exports = {
   UserLoginController,
@@ -914,5 +898,4 @@ module.exports = {
   checkSubscriptionController,
   getPackageController,
   getReportChartController,
-  getenvController
 };

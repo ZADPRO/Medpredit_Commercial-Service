@@ -336,10 +336,6 @@ CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
 
 CommercialRoutes.post("/getReportChart", verifyToken, getReportChartController);
 
-if (!getenvController) {
-  throw new Error('getenvController is undefined');
-}
 
-CommercialRoutes.get("/getenv" , getenvController);
 
 export default CommercialRoutes;
