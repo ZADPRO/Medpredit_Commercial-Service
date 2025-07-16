@@ -1342,11 +1342,11 @@
 //   try {
 //     const result = await connection.query(
 //       `
-//       SELECT 
-//         "tempOTPNumber", 
-//         "createdAt" 
-//       FROM public."tempOTP" 
-//       WHERE "tempUserId" = $1 
+//       SELECT
+//         "tempOTPNumber",
+//         "createdAt"
+//       FROM public."tempOTP"
+//       WHERE "tempUserId" = $1
 //       ORDER BY "createdAt" DESC
 //       LIMIT 1
 //       `,
@@ -1425,17 +1425,17 @@
 
 //   const query = `
 //     INSERT INTO public."tempOTP" (
-//       "tempUserId", 
-//       "tempOTPNumber", 
-//       "tempOTPExpiresTime", 
-//       "createdAt", 
+//       "tempUserId",
+//       "tempOTPNumber",
+//       "tempOTPExpiresTime",
+//       "createdAt",
 //       "createdBy"
 //     )
 //     VALUES (
-//       $1, 
-//       $2, 
-//       to_char(NOW() + INTERVAL '5 minutes', 'YYYY-MM-DD HH24:MI:SS'), 
-//       to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 
+//       $1,
+//       $2,
+//       to_char(NOW() + INTERVAL '5 minutes', 'YYYY-MM-DD HH24:MI:SS'),
+//       to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'),
 //       $3
 //     )
 //   `;
@@ -1550,9 +1550,9 @@
 
 //   try {
 //     const query = `
-//       INSERT INTO "medicalRecords" 
-//         ("refUserId", "refDocPath", "refDateOfDoc", "refCategory", 
-//          "refSubCategory", "refMedicalCenterName", "refAdditionalNotes", 
+//       INSERT INTO "medicalRecords"
+//         ("refUserId", "refDocPath", "refDateOfDoc", "refCategory",
+//          "refSubCategory", "refMedicalCenterName", "refAdditionalNotes",
 //          "refCreatedAt", "refCreatedBy", "refUpdatedAt", "refUpdatedBy", "refDocName")
 //       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $1, $8, $1, $9)
 //       RETURNING "refDocId"
@@ -1589,7 +1589,7 @@
 //   const connection = await DB();
 //   try {
 //     const query = `
-//       SELECT 
+//       SELECT
 //         "refDocId",
 //         "refDocName",
 //         "refDocPath",
@@ -1626,7 +1626,6 @@
 //   }
 // };
 
-
 import { subscribe } from "diagnostics_channel";
 import {
   addDaysToDate,
@@ -1661,14 +1660,19 @@ import {
   checkSubscriptionsQuery,
   checktheSubscriptionsQuery,
   checkUserRelationQuery,
-  checkUserSubscriptionQuery,
+  // checkUserSubscriptionQuery,
   communicationUpdateQuery,
   EmailIDForPayment,
   getAllValidPackageQuery,
+  getBMIReportdataQuery,
+  getDietaryReportdataQuery,
   getFamilyMembersQuery,
   getGSTQuery,
   getLanguageQuery,
   getPaymentTransactionHistoryQuery,
+  getPhysicalActivityReportdataQuery,
+  getSleepReportdataQuery,
+  getStressReportdataQuery,
   getUserQuery,
   getVersionQuery,
   InsertSubscriptionQuery,
@@ -1725,6 +1729,7 @@ export const UserLoginModel = async (username: string, password: string) => {
             users: result.rows,
             isDetails: result.rows[0].refOccupationLvl === "-" ? true : false,
             token: accessToken,
+            env: process.env,
           };
         } else
           return { status: false, message: "Invalid Username or Password" };
@@ -2020,14 +2025,109 @@ export const changeUserIdModel = async (
   }
 };
 
+// export const getAllValidPackageModel = async (
+//   currentDate: any,
+//   refUserId: any,
+//   refLanCode: any,
+//   versionCode:any
+// ) => {
+//   console.log("refUserId", refUserId);
+//   console.log("refLanCode", refLanCode);
+//   console.log("currentDate", currentDate);
+//   const connection = await DB();
+//   try {
+//     const result = await connection.query(getAllValidPackageQuery, [
+//       currentDate,
+//       refLanCode,
+//     ]);
+
+//     const checkSubscriptions = await connection.query(
+//       checktheSubscriptionsQuery,
+//       [currentDate, refUserId, refLanCode]
+//     );
+
+//     const getGST = await connection.query(getGSTQuery);
+
+//     const isFirstPackage = await connection.query(
+//       isFirstcheckSubscriptionsQuery,
+//       [refUserId]
+//     );
+
+//     return {
+//       result: result.rows,
+//       packageStatus: checkSubscriptions.rows.length > 0 ? true : false,
+//       packageData:
+//         checkSubscriptions.rows.length > 0 ? checkSubscriptions.rows : [],
+//       isFirstPackage: isFirstPackage.rows.length > 0 ? false : true,
+//       getGST: getGST.rows,
+//       status: true,
+//     };
+//   } catch (error) {
+//     logger.error(`Getting the Package for user, Error: ${error}`);
+//     throw error;
+//   } finally {
+//     await connection.end();
+//   }
+// };
+
 export const getAllValidPackageModel = async (
+  currentDate: any,
+  refUserId: any,
+  refLanCode: any,
+  versionCode: any
+) => {
+  console.log("refUserId:", refUserId);
+  console.log("refLanCode:", refLanCode);
+  console.log("currentDate:", currentDate);
+  console.log("versionCode:", versionCode);
+
+  // 👉 Check if versionCode is null, undefined, or empty string
+  if (versionCode == null || versionCode === "") {
+    console.log(
+      "versionCode is NULL — calling getAllValidPackageModelV1 instead."
+    );
+    return await getPackageModel(currentDate, refUserId, refLanCode);
+  }
+  const connection = await DB();
+  try {
+    const result = await connection.query(getAllValidPackageQuery, [
+      currentDate,
+      refLanCode,
+    ]);
+
+    const checkSubscriptions = await connection.query(
+      checktheSubscriptionsQuery,
+      [currentDate, refUserId, refLanCode]
+    );
+
+    const getGST = await connection.query(getGSTQuery);
+
+    const isFirstPackage = await connection.query(
+      isFirstcheckSubscriptionsQuery,
+      [refUserId]
+    );
+
+    return {
+      result: result.rows,
+      packageStatus: checkSubscriptions.rows.length > 0,
+      packageData:
+        checkSubscriptions.rows.length > 0 ? checkSubscriptions.rows : [],
+      isFirstPackage: isFirstPackage.rows.length === 0,
+      getGST: getGST.rows,
+      status: true,
+    };
+  } catch (error) {
+    logger.error(`Getting the Package for user, Error: ${error}`);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+export const getPackageModel = async (
   currentDate: any,
   refUserId: any,
   refLanCode: any
 ) => {
-  console.log("refUserId", refUserId);
-  console.log("refLanCode", refLanCode);
-  console.log("currentDate", currentDate);
   const connection = await DB();
   try {
     const result = await connection.query(getAllValidPackageQuery, [
@@ -3171,33 +3271,38 @@ export const UpdatePasswordModel = async (userId, password, email) => {
   }
 };
 
-export const UploadMedicalRecordsModel = async (numberOfFiles, filename) => {
+export const UploadMedicalRecordsModel = async (
+  numberOfFiles: number,
+  originalFilename: string
+) => {
   const connection = await DB();
 
   try {
     const uploadData = [];
 
+    // Extract extension safely from original filename
+    const extension = originalFilename.split(".").pop();
+    console.log("extension", extension);
+
     for (let i = 0; i < numberOfFiles; i++) {
-      // const extention = filename[filename.length - 1] ?? "txt"; // fallback to txt if somehow missing
-
-      const filename = `medicalRecords/${generateFileName()}`; 
-
-      // const generatedfilename = `${refProductsName}/blogs/${generateFileName()}.${extention}`;
-
-      const { upLoadUrl, fileUrl } = await createUploadUrl(filename, 15);  // Assuming this generates signed URL & public URL
+      const generatedFileName = `medicalRecords/${generateFileName()}.${extension}`;
+      const { upLoadUrl, fileUrl } = await createUploadUrl(
+        generatedFileName,
+        15
+      );
 
       uploadData.push({
         uploadUrl: upLoadUrl,
         fileUrl: fileUrl,
-        fileName: filename,
+        fileName: generatedFileName,
       });
     }
 
     return {
       status: true,
       message: "Multiple upload URLs generated successfully.",
-      files: uploadData,  // Array of files with URLs
-      totalFiles: uploadData.length
+      files: uploadData,
+      totalFiles: uploadData.length,
     };
   } catch (error) {
     console.error("UploadMedicalRecordsModel error:", error);
@@ -3206,7 +3311,6 @@ export const UploadMedicalRecordsModel = async (numberOfFiles, filename) => {
     await connection.end();
   }
 };
-
 
 // export const addMedicalRecordsModel = async (data) => {
 //   const {
@@ -3419,6 +3523,136 @@ export const checkSubscriptionModel = async (refUserId: any) => {
     throw error;
   } finally {
     await connection.query("COMMIT;");
+    await connection.end();
+  }
+};
+
+// export const getReportChartModel = async (
+//   refUserId: number,
+//   refQCategoryId: number,
+//   refLanCode: number
+// ) => {
+//   const connection = await DB();
+
+//   try {
+//     let reportData = [];
+
+//     console.log(
+//       "Fetching report for QCategory:",
+//       refQCategoryId,
+//       "with Params:",
+//       { refUserId, refQCategoryId, refLanCode }
+//     );
+
+//     if (refQCategoryId === 9) {
+//       const result = await connection.query(getStressReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+
+//       reportData = result.rows;
+//       console.log("Stress Report Data:", reportData);
+//     } else if (refQCategoryId === 12) {
+//       const result = await connection.query(getDietaryReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("Dietary Report Data:", reportData);
+//     } else if (refQCategoryId === 43) {
+//       const result = await connection.query(getSleepReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("Sleep Report Data:", reportData);
+//     } else if (refQCategoryId === 13) {
+//       const result = await connection.query(getBMIReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("BMI Report Data:", reportData);
+//     } else if (refQCategoryId === 8) {
+//       const result = await connection.query(
+//         getPhysicalActivityReportdataQuery,
+//         [refUserId, refQCategoryId, refLanCode]
+//       );
+//       reportData = result.rows;
+//       console.log("Physical Activity Report Data:", reportData);
+//     } else {
+//       console.log("No matching QCategory, returning empty data.");
+//       reportData = [];
+//     }
+
+//     return reportData ;
+//   } catch (error) {
+//     console.error("Something went wrong:", error);
+//     throw error;
+//   } finally {
+//     await connection.end();
+//   }
+// };
+
+export const getReportChartModel = async (
+  refUserId: any,
+  singleCategoryId: any,
+  refLanCode: any
+) => {
+  const connection = await DB();
+
+  try {
+    let reportData = [];
+
+    console.log("Fetching report for Category:", singleCategoryId);
+
+    if (singleCategoryId === 9) {
+      const result = await connection.query(getStressReportdataQuery, [
+        refUserId,
+        singleCategoryId,
+        refLanCode,
+      ]);
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 12) {
+      const result = await connection.query(getDietaryReportdataQuery, [
+        refUserId,
+        singleCategoryId,
+        refLanCode,
+      ]);
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 43) {
+      const result = await connection.query(getSleepReportdataQuery, [
+        refUserId,
+        singleCategoryId,
+        refLanCode,
+      ]);
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 13) {
+      const result = await connection.query(getBMIReportdataQuery, [
+        refUserId,
+        singleCategoryId,
+        refLanCode,
+      ]);
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 8) {
+      const result = await connection.query(
+        getPhysicalActivityReportdataQuery,
+        [refUserId, singleCategoryId, refLanCode]
+      );
+      reportData = result.rows || [];
+    }
+
+    console.log('reportData', reportData)
+    // If none of the conditions matched, still return empty array
+    return reportData;
+  } catch (error) {
+    console.error("getReportChartModel error:", error);
+    throw error;
+  } finally {
     await connection.end();
   }
 };

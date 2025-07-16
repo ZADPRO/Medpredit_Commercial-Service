@@ -415,7 +415,7 @@ const blogImageController = async (req, res) => {
 
     const result = await blogImageModel(fileName);
 
-    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
+    return res.status(200).json(encrypt(result, false)); // Encrypt if needed
   } catch (error) {
     console.error("blogImageController error:", error);
     return res.status(500).json({

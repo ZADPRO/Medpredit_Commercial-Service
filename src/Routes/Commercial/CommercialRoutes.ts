@@ -162,17 +162,13 @@
 
 // CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
 
-
-
 // export default CommercialRoutes;
-
-
 
 import express from "express";
 
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+// import multer from "multer";
+// import path from "path";
+// import fs from "fs";
 // import { UserCountController } from "../../Controller/Commercial/CommercialController";
 
 const {
@@ -208,6 +204,9 @@ const {
   listMedicalRecordsController,
   addMedicalRecordsController,
   checkSubscriptionController,
+  getPackageController,
+  getReportChartController,
+  getenvController
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -233,8 +232,15 @@ CommercialRoutes.post(
 
 CommercialRoutes.post("/changeUserId", verifyToken, changeUserIdController);
 
+
 CommercialRoutes.post(
   "/getAllValidPackage",
+  verifyToken,
+  getPackageController
+);
+
+CommercialRoutes.post(
+  "/v2/getAllValidPackage",
   verifyToken,
   getAllValidPackageController
 );
@@ -307,10 +313,17 @@ CommercialRoutes.post("/forgotPassword", forgotPasswordRoutes);
 
 CommercialRoutes.post("/enterNewPassword", NewPasswordEntryController);
 
+CommercialRoutes.post(
+  "/medicalRecordsUpload",
+  verifyToken,
+  MedicalRecordsController
+);
 
-CommercialRoutes.post("/medicalRecordsUpload", MedicalRecordsController);
-
-CommercialRoutes.post("/addmedicalRecords", addMedicalRecordsController);
+CommercialRoutes.post(
+  "/addmedicalRecords",
+  verifyToken,
+  addMedicalRecordsController
+);
 
 CommercialRoutes.get(
   "/medicalRecordsDetails/:userId",
@@ -318,6 +331,10 @@ CommercialRoutes.get(
 );
 
 CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
+
+// CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
+
+CommercialRoutes.post("/getReportChart", verifyToken, getReportChartController);
 
 
 
