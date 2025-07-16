@@ -798,17 +798,29 @@ SELECT
   usv.*,
   CASE
     WHEN usv."refAction" = 'equal'
-    AND pt."refPTScore" = usv."refValue" THEN usv."refAnswerLabel"
+      AND pt."refPTScore" = usv."refValue"
+    THEN usv."refAnswerLabel"
+
     WHEN usv."refAction" = 'greaterThanEqual'
-    AND pt."refPTScore"::numeric >= CAST(usv."refValue" AS numeric) THEN usv."refAnswerLabel"
+      AND pt."refPTScore" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND usv."refValue" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND pt."refPTScore"::numeric >= usv."refValue"::numeric
+    THEN usv."refAnswerLabel"
+
     WHEN usv."refAction" = 'lessThan'
-    AND pt."refPTScore"::numeric < CAST(usv."refValue" AS numeric) THEN usv."refAnswerLabel"
+      AND pt."refPTScore" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND usv."refValue" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND pt."refPTScore"::numeric < usv."refValue"::numeric
+    THEN usv."refAnswerLabel"
+
     ELSE NULL
   END AS "calculatedAnswerLabel"
 FROM
   public."refPatientTransaction" pt
-  LEFT JOIN public."refUserScoreDetail" usd ON CAST(usd."refPTId" AS INTEGER) = pt."refPTId"::integer
-  LEFT JOIN public."refUserScoreVerify" usv ON CAST(usv."refQCategoryId" AS INTEGER) = usd."refQCategoryId"::integer
+  LEFT JOIN public."refUserScoreDetail" usd 
+    ON CAST(usd."refPTId" AS INTEGER) = pt."refPTId"::integer
+  LEFT JOIN public."refUserScoreVerify" usv 
+    ON CAST(usv."refQCategoryId" AS INTEGER) = usd."refQCategoryId"::integer
 WHERE
   pt."createdBy"::integer = $1
   AND usd."refQCategoryId"::integer = $2
@@ -820,11 +832,15 @@ WHERE
     )
     OR (
       usv."refAction" = 'greaterThanEqual'
-      AND pt."refPTScore"::numeric >= CAST(usv."refValue" AS numeric)
+      AND pt."refPTScore" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND usv."refValue" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND pt."refPTScore"::numeric >= usv."refValue"::numeric
     )
     OR (
       usv."refAction" = 'lessThan'
-      AND pt."refPTScore"::numeric < CAST(usv."refValue" AS numeric)
+      AND pt."refPTScore" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND usv."refValue" ~ '^[0-9]+(\.[0-9]+)?$'
+      AND pt."refPTScore"::numeric < usv."refValue"::numeric
     )
   );
 `;

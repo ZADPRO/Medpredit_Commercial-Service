@@ -1729,7 +1729,7 @@ export const UserLoginModel = async (username: string, password: string) => {
             users: result.rows,
             isDetails: result.rows[0].refOccupationLvl === "-" ? true : false,
             token: accessToken,
-            env: process.env
+            env: process.env,
           };
         } else
           return { status: false, message: "Invalid Username or Password" };
@@ -3527,76 +3527,132 @@ export const checkSubscriptionModel = async (refUserId: any) => {
   }
 };
 
+// export const getReportChartModel = async (
+//   refUserId: number,
+//   refQCategoryId: number,
+//   refLanCode: number
+// ) => {
+//   const connection = await DB();
+
+//   try {
+//     let reportData = [];
+
+//     console.log(
+//       "Fetching report for QCategory:",
+//       refQCategoryId,
+//       "with Params:",
+//       { refUserId, refQCategoryId, refLanCode }
+//     );
+
+//     if (refQCategoryId === 9) {
+//       const result = await connection.query(getStressReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+
+//       reportData = result.rows;
+//       console.log("Stress Report Data:", reportData);
+//     } else if (refQCategoryId === 12) {
+//       const result = await connection.query(getDietaryReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("Dietary Report Data:", reportData);
+//     } else if (refQCategoryId === 43) {
+//       const result = await connection.query(getSleepReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("Sleep Report Data:", reportData);
+//     } else if (refQCategoryId === 13) {
+//       const result = await connection.query(getBMIReportdataQuery, [
+//         refUserId,
+//         refQCategoryId,
+//         refLanCode,
+//       ]);
+//       reportData = result.rows;
+//       console.log("BMI Report Data:", reportData);
+//     } else if (refQCategoryId === 8) {
+//       const result = await connection.query(
+//         getPhysicalActivityReportdataQuery,
+//         [refUserId, refQCategoryId, refLanCode]
+//       );
+//       reportData = result.rows;
+//       console.log("Physical Activity Report Data:", reportData);
+//     } else {
+//       console.log("No matching QCategory, returning empty data.");
+//       reportData = [];
+//     }
+
+//     return reportData ;
+//   } catch (error) {
+//     console.error("Something went wrong:", error);
+//     throw error;
+//   } finally {
+//     await connection.end();
+//   }
+// };
 
 export const getReportChartModel = async (
-  refUserId: number,
-  refQCategoryId: number,
-  refLanCode: number
+  refUserId: any,
+  singleCategoryId: any,
+  refLanCode: any
 ) => {
   const connection = await DB();
 
   try {
     let reportData = [];
 
-    console.log(
-      "Fetching report for QCategory:",
-      refQCategoryId,
-      "with Params:",
-      { refUserId, refQCategoryId, refLanCode }
-    );
+    console.log("Fetching report for Category:", singleCategoryId);
 
-    if (refQCategoryId === 9) {
+    if (singleCategoryId === 9) {
       const result = await connection.query(getStressReportdataQuery, [
         refUserId,
-        refQCategoryId,
+        singleCategoryId,
         refLanCode,
       ]);
-      
-      reportData = result.rows;
-      console.log("Stress Report Data:", reportData);
-    } else if (refQCategoryId === 12) {
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 12) {
       const result = await connection.query(getDietaryReportdataQuery, [
         refUserId,
-        refQCategoryId,
+        singleCategoryId,
         refLanCode,
       ]);
-      reportData = result.rows;
-      console.log("Dietary Report Data:", reportData);
-    } else if (refQCategoryId === 43) {
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 43) {
       const result = await connection.query(getSleepReportdataQuery, [
         refUserId,
-        refQCategoryId,
+        singleCategoryId,
         refLanCode,
       ]);
-      reportData = result.rows;
-      console.log("Sleep Report Data:", reportData);
-    } else if (refQCategoryId === 13) {
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 13) {
       const result = await connection.query(getBMIReportdataQuery, [
         refUserId,
-        refQCategoryId,
+        singleCategoryId,
         refLanCode,
       ]);
-      reportData = result.rows;
-      console.log("BMI Report Data:", reportData);
-    } else if (refQCategoryId === 8) {
+      reportData = result.rows || [];
+    } else if (singleCategoryId === 8) {
       const result = await connection.query(
         getPhysicalActivityReportdataQuery,
-        [refUserId, refQCategoryId, refLanCode]
+        [refUserId, singleCategoryId, refLanCode]
       );
-      reportData = result.rows;
-      console.log("Physical Activity Report Data:", reportData);
-    } else {
-      console.log("No matching QCategory, returning empty data.");
-      reportData = [];
+      reportData = result.rows || [];
     }
 
-    return reportData ;
+    console.log('reportData', reportData)
+    // If none of the conditions matched, still return empty array
+    return reportData;
   } catch (error) {
-    console.error("Something went wrong:", error);
+    console.error("getReportChartModel error:", error);
     throw error;
   } finally {
     await connection.end();
   }
 };
-
-

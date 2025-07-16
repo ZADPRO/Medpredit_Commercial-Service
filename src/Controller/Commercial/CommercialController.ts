@@ -806,56 +806,102 @@ export const checkSubscriptionController = async (req, res) => {
   }
 };
 
+// const getReportChartController = async (req, res) => {
+//   const refUserId = req.userData.userid;
+
+//   try {
+//     const { refQCategoryId, refLanCode } = req.body;
+//     console.log("req.body", req.body);
+
+//     if (!refUserId || !refQCategoryId || !refLanCode) {
+//       return res
+//         .status(400)
+//         .json(
+//           encrypt(
+//             { status: false, message: "Missing required parameters" },
+//             true
+//           )
+//         );
+//     }
+
+//     console.log("refUserId", refUserId);
+//     console.log("refQCategoryId", refQCategoryId);
+//     console.log("refLanCode", refLanCode);
+
+//     const result = await getReportChartModel(
+//       refUserId,
+//       refQCategoryId,
+//       refLanCode
+//     );
+
+//     console.log("result", result);
+
+//     if (!result || result.length === 0) {
+//       return res.status(200).json(
+//         encrypt(
+//           {
+//             status: false,
+//             message: "No report found.",
+//           },
+//           true
+//         )
+//       );
+//     }
+
+//     return res.status(200).json(
+//       encrypt(
+//         {
+//           status: true,
+//           result,
+//         },
+//         true
+//       )
+//     );
+//   } catch (error) {
+//     console.error("get Report Chart Controller error:", error);
+//     return res.status(500).json({
+//       status: false,
+//       message: "Error fetching get Report Chart Controller data.",
+//     });
+//   }
+// };
+
 const getReportChartController = async (req, res) => {
   const refUserId = req.userData.userid;
 
   try {
-    const { refQCategoryId, refLanCode } = req.body;
+    const { refQCategoryIds, refLanCode } = req.body;
+
     console.log("req.body", req.body);
 
-    if (!refUserId || !refQCategoryId || !refLanCode) {
-      return res
-        .status(400)
-        .json(
-          encrypt(
-            { status: false, message: "Missing required parameters" },
-            true
-          )
-        );
+ 
+if (!refUserId || !refQCategoryIds || !refLanCode) {
+  return res.status(400).json({
+    status: false,
+    message: "Missing required fields",
+  });
+}
+
+    const finalResult = [];
+
+    for (const categoryId of refQCategoryIds) {
+      const data = await getReportChartModel(refUserId, categoryId, refLanCode);
+
+      finalResult.push({
+        categoryId,
+        categoryName: mapCategoryName(categoryId),
+        data: data || []  // Always ensures an array
+      });
     }
 
-    console.log("refUserId", refUserId);
-    console.log("refQCategoryId", refQCategoryId);
-    console.log("refLanCode", refLanCode);
-
-    const result = await getReportChartModel(
-      refUserId,
-      refQCategoryId,
-      refLanCode
-    );
-
-    console.log("result", result);
-
-    if (!result || result.length === 0) {
+    if (finalResult.every(item => item.data.length === 0)) {
       return res.status(200).json(
-        encrypt(
-          {
-            status: false,
-            message: "No report found.",
-          },
-          true
-        )
+        encrypt({ status: false, message: "No reports found." }, true)
       );
     }
 
     return res.status(200).json(
-      encrypt(
-        {
-          status: true,
-          result,
-        },
-        true
-      )
+      encrypt({ status: true, result: finalResult }, true)
     );
   } catch (error) {
     console.error("get Report Chart Controller error:", error);
@@ -866,6 +912,18 @@ const getReportChartController = async (req, res) => {
   }
 };
 
+
+// Helper function to map category names
+const mapCategoryName = (id) => {
+  const categoryMap = {
+    9: "Stress",
+    12: "Dietary",
+    43: "Sleep",
+    13: "BMI",
+    8: "Physical Activity"
+  };
+  return categoryMap[id] || "Unknown";
+};
 
 module.exports = {
   UserLoginController,
