@@ -35,6 +35,8 @@ import { UserLoginModel } from "../Commercial/CommercialModels";
 import {
   createUploadUrl,
   getFileUrl,
+  listAllFiles,
+  minioClient,
 } from "../../Helper/MinioClient/MinioClient";
 
 const DB = require("../../Helper/DBConncetion");
@@ -1179,6 +1181,33 @@ WHERE
       message: "release get successfully.",
       result: result.rows,
     };
+  } catch (error) {
+    console.error("release get error:", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+export const testImageModel = async () => {
+  const connection = await DB();
+
+  try {
+    const bucketName = process.env.MINIO_BUCKET;
+
+
+    const files = await listAllFiles(bucketName);
+  const expirySeconds = 60 * 10; // e.g., 10 mins expiry
+
+  const urls = await Promise.all(
+      files.map((fileName) =>
+        minioClient.presignedUrl("GET", bucketName, fileName, expirySeconds)
+      )
+    );
+    return {
+      status: true,
+      message: "release get successfully.",
+      urls:urls
+   };
   } catch (error) {
     console.error("release get error:", error);
     throw error;

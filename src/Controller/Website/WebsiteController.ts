@@ -29,7 +29,8 @@ import {
   updateViewStatusModel,
   getBlogsModel,
   updateReleaseModel,
-  getReleaseModel
+  getReleaseModel,
+  testImageModel
 } from "../../Models/Website/WebsiteModels";
 
 // const adminSigninController = async (req, res) => {
@@ -456,6 +457,19 @@ const getReleaseController = async (req, res) => {
     });
   }
 };
+const testImageController = async (req, res) => {
+  try {
+    const result = await  testImageModel();
+
+    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
+  } catch (error) {
+    console.error("testImageController error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "testImageController upload failed",
+    });
+  }
+};
 
 module.exports = {
   adminSigninController,
@@ -479,5 +493,6 @@ module.exports = {
   updateViewStatusController,
   getBlogsController,
   getReleaseController,
-  updateReleaseController
+  updateReleaseController,
+  testImageController
 };

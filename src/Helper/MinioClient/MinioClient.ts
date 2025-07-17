@@ -91,3 +91,23 @@ export const getFileUrl = async (fileName: string, expireMins: number): Promise<
     throw new Error("Failed to generate view file URL"); // ✅ throw an actual error
   }
 };
+
+export const listAllFiles = async (bucketName: string): Promise<string[]> => {
+  return new Promise((resolve, reject) => {
+    const fileList: string[] = [];
+
+    const stream = minioClient.listObjectsV2(bucketName, "", true); // "" = no prefix, true = recursive
+
+    stream.on("data", (obj) => {
+      fileList.push(obj.name);
+    });
+
+    stream.on("end", () => {
+      resolve(fileList);
+    });
+
+    stream.on("error", (err) => {
+      reject(err);
+    });
+  });
+};
