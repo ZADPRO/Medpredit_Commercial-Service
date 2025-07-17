@@ -31,7 +31,7 @@ app.use("/api/v1", DoctorRoutes);
 app.use("/api/commercial", CommercialRoutes);
 // app.use("/api/AdminRoutes", AdminRoutes);
 // app.use("/api/BatchRoutes", BatchRoutes);
-app.use("/api/WebsiteRoutes", WebsiteRoutes);
+app.use("/api/v1/WebsiteRoutes", WebsiteRoutes);
 
 startCronJobs();
 
