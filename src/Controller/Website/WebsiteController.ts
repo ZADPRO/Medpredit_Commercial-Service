@@ -461,7 +461,7 @@ const testImageController = async (req, res) => {
   try {
     const result = await  testImageModel();
 
-    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
+    return res.status(200).json(encrypt(result, false)); // Encrypt if needed
   } catch (error) {
     console.error("testImageController error:", error);
     return res.status(500).json({
