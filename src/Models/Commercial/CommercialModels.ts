@@ -1675,6 +1675,7 @@ import {
   getStressReportdataQuery,
   getUserQuery,
   getVersionQuery,
+  insertHealthDataQuery,
   InsertSubscriptionQuery,
   InsertTransactionHistoryQuery,
   isFirstcheckSubscriptionsQuery,
@@ -3311,6 +3312,27 @@ export const UploadMedicalRecordsModel = async (
     await connection.end();
   }
 };
+
+export const logHealthDataModel = async (values: any) => {
+  const connection = await DB();
+  try {
+    const result = await connection.query(insertHealthDataQuery, [
+      values.refUserId,
+      values.date,
+      values.steps,
+      values.calories,
+      values.heart_rate,
+    ]);
+
+    return { status: true };
+  } catch (error) {
+    console.error("logHealthDataModel error:", error);
+    return { status: false };
+  } finally {
+    await connection.end();
+  }
+};
+
 
 // export const addMedicalRecordsModel = async (data) => {
 //   const {

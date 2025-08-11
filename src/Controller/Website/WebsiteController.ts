@@ -1,4 +1,3 @@
-
 import { encrypt } from "../../Helper/Encryption";
 import { CurrentTime } from "../../Helper/CurrentTime";
 
@@ -29,7 +28,8 @@ import {
   updateViewStatusModel,
   getBlogsModel,
   updateReleaseModel,
-  getReleaseModel
+  getReleaseModel,
+  testImageModel,
 } from "../../Models/Website/WebsiteModels";
 
 // const adminSigninController = async (req, res) => {
@@ -86,12 +86,15 @@ const uploadBlogImageController = async (req, res) => {
     const base64Content = fileBuffer.toString("base64");
 
     return res.status(200).json(
-      encrypt({
-        status: true,
-        fileName: req.file.filename,
-        filePath,
-        base64: base64Content,
-      })
+      encrypt(
+        {
+          status: true,
+          fileName: req.file.filename,
+          filePath,
+          base64: base64Content,
+        },
+        true
+      )
     );
   } catch (error) {
     console.error("uploadBlogImageController error:", error);
@@ -108,7 +111,7 @@ const UploadBlogController = async (req, res) => {
     const record = {
       blogTitle,
       blogContent,
-      filePath
+      filePath,
     };
     const result = await UploadBlogModel(record);
 
@@ -160,7 +163,7 @@ const userReviewsController = async (req, res) => {
       userName,
       useremail,
       reviewContent,
-      ratings
+      ratings,
     };
     const result = await userReviewsModel(record);
 
@@ -178,7 +181,8 @@ const updateViewStatusController = async (req, res) => {
     const { reviewId, newstatus } = req.body;
 
     const record = {
-     reviewId, newstatus
+      reviewId,
+      newstatus,
     };
     const result = await updateViewStatusModel(record);
 
@@ -187,7 +191,10 @@ const updateViewStatusController = async (req, res) => {
     console.error("updateViewStatusController error:", error);
     return res
       .status(500)
-      .json({ status: false, message: "updateViewStatusController upload failed" });
+      .json({
+        status: false,
+        message: "updateViewStatusController upload failed",
+      });
   }
 };
 
@@ -259,13 +266,13 @@ const deleteAchivementsController = async (req, res) => {
 
 const addReleaseController = async (req, res) => {
   try {
-    const { version, notes, releaseDate,refStatus } = req.body;
+    const { version, notes, releaseDate, refStatus } = req.body;
 
     const record = {
       version,
       notes,
       releaseDate,
-      refStatus
+      refStatus,
     };
     const result = await addReleaseModel(record);
 
@@ -330,13 +337,13 @@ const listReleaseController = async (req, res) => {
 
 const updateBlogController = async (req, res) => {
   try {
-    const { blogId,blogTitle, blogContent, imagePath } = req.body;
+    const { blogId, blogTitle, blogContent, imagePath } = req.body;
 
     const record = {
       blogTitle,
       blogContent,
       filePath: imagePath,
-      blogId
+      blogId,
     };
     const result = await UpdateBlogModel(record);
 
@@ -354,7 +361,11 @@ const updateReviewsController = async (req, res) => {
     const { userName, useremail, reviewContent, ratings, reviewId } = req.body;
 
     const record = {
-    userName, useremail, reviewContent, ratings, reviewId
+      userName,
+      useremail,
+      reviewContent,
+      ratings,
+      reviewId,
     };
     const result = await UpdateReviewModel(record);
 
@@ -369,13 +380,18 @@ const updateReviewsController = async (req, res) => {
 
 const updateAchievementController = async (req, res) => {
   try {
-    const { achievementId, achievementTitle, achievementDescription, achievedOn } = req.body;
+    const {
+      achievementId,
+      achievementTitle,
+      achievementDescription,
+      achievedOn,
+    } = req.body;
 
     const record = {
       achievementTitle,
       achievementDescription,
       achievedOn,
-      achievementId
+      achievementId,
     };
     const result = await updateAchievementModel(record);
 
@@ -391,12 +407,16 @@ const updateAchievementController = async (req, res) => {
 
 const updateReleaseController = async (req, res) => {
   try {
-    const { releaseId,version, notes, releaseDate,refStatus  } = req.body;
+    const { releaseId, version, notes, releaseDate, refStatus } = req.body;
 
     const record = {
-    releaseId, version, notes, releaseDate,refStatus 
+      releaseId,
+      version,
+      notes,
+      releaseDate,
+      refStatus,
     };
-    const result = await  updateReleaseModel(record);
+    const result = await updateReleaseModel(record);
 
     return res.status(200).json(encrypt(result, true)); // Encrypt if needed
   } catch (error) {
@@ -410,12 +430,12 @@ const updateReleaseController = async (req, res) => {
 const blogImageController = async (req, res) => {
   try {
     const { fileName } = req.body;
-    console.log('req.body', req.body)
-    console.log('fileType', fileName)
+    console.log("req.body", req.body);
+    console.log("fileType", fileName);
 
     const result = await blogImageModel(fileName);
 
-    return res.status(200).json(encrypt(result, false)); // Encrypt if needed
+    return res.status(200).json(encrypt(result, true)); // Encrypt if needed
   } catch (error) {
     console.error("blogImageController error:", error);
     return res.status(500).json({
@@ -428,9 +448,9 @@ const blogImageController = async (req, res) => {
 const getBlogsController = async (req, res) => {
   try {
     const { blogId } = req.body;
-    console.log('blogId', blogId)
+    console.log("blogId", blogId);
     const result = await getBlogsModel(blogId);
-    console.log('result', result)
+    console.log("result", result);
 
     return res.status(200).json(encrypt(result, true)); // Encrypt if needed
   } catch (error) {
@@ -453,6 +473,19 @@ const getReleaseController = async (req, res) => {
     return res.status(500).json({
       status: false,
       message: "getReleaseController upload failed",
+    });
+  }
+};
+const testImageController = async (req, res) => {
+  try {
+    const result = await testImageModel();
+
+    return res.status(200).json(encrypt(result, false)); // Encrypt if needed
+  } catch (error) {
+    console.error("testImageController error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "testImageController upload failed",
     });
   }
 };
@@ -479,5 +512,6 @@ module.exports = {
   updateViewStatusController,
   getBlogsController,
   getReleaseController,
-  updateReleaseController
+  updateReleaseController,
+  testImageController,
 };

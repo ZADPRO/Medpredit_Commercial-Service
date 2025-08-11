@@ -315,6 +315,11 @@
 //   1;
 // `;
 
+export const insertHealthDataQuery = `
+ INSERT INTO public."userhealthdata" ("refUserId", "date", "steps", "calories", "heart_rate")
+  VALUES ($1, $2, $3, $4, $5);
+`;
+
 export const getUserQuery = `
 SELECT
   u.*,
@@ -843,4 +848,24 @@ WHERE
       AND pt."refPTScore"::numeric < usv."refValue"::numeric
     )
   );
+`;
+
+// export const insertHealthDataQuery = `
+//   INSERT INTO "UserHealthData"
+//     ("refUserId", "metricType", "value", "unit", "recordedAt")
+//   VALUES ($1, $2, $3, $4, $5)
+//   RETURNING *;
+// `;
+
+export const getUserHealthDataQuery = `
+  SELECT 
+    uh."metricType",
+    uh."value",
+    uh."unit",
+    uh."recordedAt"
+  FROM 
+    "UserHealthData" uh
+  WHERE 
+    uh."refUserId" = $1
+  ORDER BY uh."recordedAt" DESC;
 `;

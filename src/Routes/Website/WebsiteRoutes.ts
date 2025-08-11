@@ -32,6 +32,7 @@ const {
   getBlogsController,
   getReleaseController,
   updateReleaseController,
+  testImageController
 } = require("../../Controller/Website/WebsiteController");
 
 const WebsiteRoutes = express.Router();
@@ -101,5 +102,7 @@ WebsiteRoutes.post("/blogImage", blogImageController);
 WebsiteRoutes.post("/getBlogs", getBlogsController);
 
 WebsiteRoutes.post("/getRelease", getReleaseController);
+
+WebsiteRoutes.get("/testimage",  testImageController);
 
 export default WebsiteRoutes;
