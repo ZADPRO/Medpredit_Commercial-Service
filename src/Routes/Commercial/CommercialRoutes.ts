@@ -206,7 +206,8 @@ const {
   checkSubscriptionController,
   getPackageController,
   getReportChartController,
-  getenvController
+  getenvController  ,
+  logHealthDataController
 } = require("../../Controller/Commercial/CommercialController");
 
 const CommercialRoutes = express.Router();
@@ -336,6 +337,9 @@ CommercialRoutes.post("/medicalRecordsDownload", downloadMedicalRecord);
 
 CommercialRoutes.post("/getReportChart", verifyToken, getReportChartController);
 
+
+
+CommercialRoutes.post("/logHealthData", logHealthDataController);
 
 
 export default CommercialRoutes;
